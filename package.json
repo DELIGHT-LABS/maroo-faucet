@@ -2,6 +2,7 @@
   "name": "maroo-faucet",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "engines": {
     "node": ">=22"
   },
@@ -11,7 +12,8 @@
     "start": "pnpm -r --parallel start",
     "generate:key": "pnpm --filter server generate:key",
     "check": "biome check",
-    "check:fix": "biome check --write"
+    "check:fix": "biome check --write",
+    "check:type": "pnpm -r type-check"
   },
   "keywords": [],
   "author": "",
