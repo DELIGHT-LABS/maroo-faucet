@@ -1,7 +1,12 @@
 "use client";
 
-import { addNetwork, addToken, type NetworkConfig, type TokenConfig } from "@/lib/metamask";
 import { toast } from "sonner";
+import {
+  addNetwork,
+  addToken,
+  type NetworkConfig,
+  type TokenConfig,
+} from "@/lib/metamask";
 
 interface AddNetworkButtonProps {
   config: NetworkConfig;
@@ -13,7 +18,7 @@ export function AddNetworkButton({ config, token }: AddNetworkButtonProps) {
     try {
       await addNetwork(config);
       toast.success(`${config.NAME} added to MetaMask`);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to add network");
     }
   };
@@ -24,7 +29,7 @@ export function AddNetworkButton({ config, token }: AddNetworkButtonProps) {
     try {
       await addToken(token);
       toast.success(`${token.TOKEN} added to MetaMask`);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to add token");
     }
   };
@@ -50,7 +55,8 @@ export function AddNetworkButton({ config, token }: AddNetworkButtonProps) {
           alt="MetaMask"
           className="h-5 w-5"
           onError={(e) => {
-            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg";
+            e.currentTarget.src =
+              "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg";
           }}
         />
         Add Network to MetaMask

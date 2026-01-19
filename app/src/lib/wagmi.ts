@@ -1,7 +1,13 @@
-import { createConfig, createStorage, http, cookieStorage, noopStorage } from "wagmi";
+import { defineChain } from "viem";
+import {
+  cookieStorage,
+  createConfig,
+  createStorage,
+  http,
+  noopStorage,
+} from "wagmi";
 import { mainnet } from "wagmi/chains";
 import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
-import { defineChain } from "viem";
 
 const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID || "";
 
@@ -54,7 +60,9 @@ const wagmiTestnet = defineChain({
   name: "WAGMI Testnet",
   nativeCurrency: { name: "WAGMI", symbol: "WGM", decimals: 18 },
   rpcUrls: {
-    default: { http: ["https://subnets.lux.network/wagmi/wagmi-chain-testnet/rpc"] },
+    default: {
+      http: ["https://subnets.lux.network/wagmi/wagmi-chain-testnet/rpc"],
+    },
   },
   blockExplorers: {
     default: {
