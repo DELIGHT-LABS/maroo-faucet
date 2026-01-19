@@ -126,10 +126,10 @@ export default function Home() {
       <div className="mx-auto max-w-2xl pt-20">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Lux Testnet Faucet
+            Maroo Testnet Faucet
           </h1>
           <p className="text-lg text-muted-foreground">
-            Get test tokens for Lux networks and subnets
+            Get test tokens for Maroo networks and subnets
           </p>
         </div>
 

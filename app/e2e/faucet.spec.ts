@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Lux Faucet", () => {
+test.describe("Maroo Faucet", () => {
   test("should load the homepage", async ({ page }) => {
     await page.goto("/");
 
@@ -67,10 +67,11 @@ test.describe("Backend API", () => {
     expect(response.ok()).toBeTruthy();
   });
 
-  // TODO: fixme
-  // test("should have CORS headers", async ({ request }) => {
-  //   const response = await request.options("http://localhost:8000/api");
-  //   const headers = response.headers();
-  //   expect(headers["access-control-allow-origin"]).toBeDefined();
-  // });
+  test("should have CORS headers", async ({ request }) => {
+    const response = await request.fetch("http://localhost:8000/api", {
+      method: "OPTIONS",
+    });
+    const headers = response.headers();
+    expect(headers["access-control-allow-origin"]).toBeDefined();
+  });
 });

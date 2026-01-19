@@ -6,7 +6,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 
 /**
  * @title Faucet
- * @notice A simple faucet contract for distributing test tokens on Lux testnets
+ * @notice A simple faucet contract for distributing test tokens on Maroo testnets
  * @dev Implements rate limiting and configurable drip amounts
  */
 contract Faucet is Ownable, ReentrancyGuard {
