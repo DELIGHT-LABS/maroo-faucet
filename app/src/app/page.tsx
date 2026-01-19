@@ -25,7 +25,7 @@ export default function Home() {
   const { address, isConnected } = useAccount();
   const { executeRecaptcha } = useGoogleReCaptcha();
   const [recipientAddress, setRecipientAddress] = useState("");
-  const [selectedChain, setSelectedChain] = useState("C");
+  const [selectedChain, setSelectedChain] = useState("MAROO");
   const [loading, setLoading] = useState(false);
   const [chains, setChains] = useState<ChainConfig[]>([]);
   const [currentChainConfig, setCurrentChainConfig] =
@@ -153,7 +153,7 @@ export default function Home() {
                     </option>
                   ))
                 ) : (
-                  <option value="C">Loading...</option>
+                  <option value="MAROO">Loading...</option>
                 )}
               </select>
             </div>

@@ -20,7 +20,7 @@
       "IMAGE": "",
       "MAX_PRIORITY_FEE": "2000000000",
       "MAX_FEE": "100000000000",
-      "DRIP_AMOUNT": 1000000000,
+      "DRIP_AMOUNT": 1,
       "DECIMALS": 18,
       "RATELIMIT": {
         "MAX_LIMIT": 5,
