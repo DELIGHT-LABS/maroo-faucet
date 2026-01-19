@@ -1,4 +1,4 @@
-import EVM from './vms/evm';
+import type EVM from "./vms/evm";
 
 export type SendTokenResponse = {
   status: number;

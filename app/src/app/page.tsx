@@ -1,10 +1,10 @@
 "use client";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { toast } from "sonner";
+import { useAccount } from "wagmi";
 import { AddNetworkButton } from "@/components/add-network-button";
 
 interface ChainConfig {
@@ -28,13 +28,16 @@ export default function Home() {
   const [selectedChain, setSelectedChain] = useState("C");
   const [loading, setLoading] = useState(false);
   const [chains, setChains] = useState<ChainConfig[]>([]);
-  const [currentChainConfig, setCurrentChainConfig] = useState<ChainConfig | null>(null);
+  const [currentChainConfig, setCurrentChainConfig] =
+    useState<ChainConfig | null>(null);
 
   // Load chain configurations
   useEffect(() => {
     const loadChains = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/getChainConfigs`);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/getChainConfigs`,
+        );
         const data = await response.json();
         setChains(data.configs || []);
       } catch (error) {
@@ -69,21 +72,24 @@ export default function Home() {
       // Get ReCaptcha token
       const token = await executeRecaptcha("faucet_request");
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/sendToken`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address: targetAddress,
-          chain: selectedChain,
-          token,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/sendToken`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            address: targetAddress,
+            chain: selectedChain,
+            token,
+          }),
+        },
+      );
 
       const data = await response.json();
 
       if (response.ok) {
         toast.success(
-          `Successfully sent ${currentChainConfig?.DRIP_AMOUNT || 2} ${currentChainConfig?.TOKEN || "tokens"} to ${targetAddress.slice(0, 6)}...${targetAddress.slice(-4)}`
+          `Successfully sent ${currentChainConfig?.DRIP_AMOUNT || 2} ${currentChainConfig?.TOKEN || "tokens"} to ${targetAddress.slice(0, 6)}...${targetAddress.slice(-4)}`,
         );
         setRecipientAddress("");
 
@@ -92,7 +98,11 @@ export default function Home() {
           toast.info("View Transaction", {
             action: {
               label: "Open Explorer",
-              onClick: () => window.open(`${currentChainConfig.EXPLORER}/tx/${data.txHash}`, "_blank"),
+              onClick: () =>
+                window.open(
+                  `${currentChainConfig.EXPLORER}/tx/${data.txHash}`,
+                  "_blank",
+                ),
             },
           });
         }
@@ -150,8 +160,12 @@ export default function Home() {
 
             {/* Address Input */}
             <div>
-              <label htmlFor="address" className="block text-sm font-medium mb-2">
-                Recipient Address {isConnected && "(Optional - uses connected wallet)"}
+              <label
+                htmlFor="address"
+                className="block text-sm font-medium mb-2"
+              >
+                Recipient Address{" "}
+                {isConnected && "(Optional - uses connected wallet)"}
               </label>
               <input
                 id="address"
@@ -163,7 +177,8 @@ export default function Home() {
               />
               {isConnected && !recipientAddress && (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Tokens will be sent to your connected wallet: {address?.slice(0, 6)}...{address?.slice(-4)}
+                  Tokens will be sent to your connected wallet:{" "}
+                  {address?.slice(0, 6)}...{address?.slice(-4)}
                 </p>
               )}
             </div>
@@ -183,12 +198,15 @@ export default function Home() {
             <h3 className="font-semibold">Important Notes:</h3>
             <ul className="space-y-2 text-muted-foreground">
               <li>
-                • Rate limited to {currentChainConfig?.RATELIMIT.MAX_LIMIT || 1} request
-                {(currentChainConfig?.RATELIMIT.MAX_LIMIT || 1) > 1 && "s"} per address every{" "}
+                • Rate limited to {currentChainConfig?.RATELIMIT.MAX_LIMIT || 1}{" "}
+                request
+                {(currentChainConfig?.RATELIMIT.MAX_LIMIT || 1) > 1 && "s"} per
+                address every{" "}
                 {currentChainConfig?.RATELIMIT.WINDOW_SIZE || 1440} minutes
               </li>
               <li>
-                • Drip amount: {currentChainConfig?.DRIP_AMOUNT || 2} {currentChainConfig?.TOKEN || "tokens"} per request
+                • Drip amount: {currentChainConfig?.DRIP_AMOUNT || 2}{" "}
+                {currentChainConfig?.TOKEN || "tokens"} per request
               </li>
               <li>• Test tokens have no real value</li>
               <li>• For development and testing purposes only</li>

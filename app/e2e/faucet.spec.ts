@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Lux Faucet", () => {
   test("should load the homepage", async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe("Lux Faucet", () => {
     const filteredErrors = errors.filter(
       (error) =>
         !error.includes("indexedDB is not defined") &&
-        !error.includes("WalletConnect")
+        !error.includes("WalletConnect"),
     );
 
     expect(filteredErrors).toHaveLength(0);
