@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+dist
+**/dist
+.next
+**/.next
+
+# Frontend app (not needed for server Docker build)
+app
+
+# Development files
+*.log
+.env
+.env.local
+**/.env
+**/.env.local
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+**/e2e
+coverage
+
+# Contracts (not needed for server)
+contracts
+
+# Client (legacy, not needed)
+client
+
+# Misc
+README.md
+LICENSE
+*.md

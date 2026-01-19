@@ -29,14 +29,17 @@ dotenv.config();
 const app: any = express();
 const router: any = express.Router();
 
-const corsAllowOrigins = process.env.NODE_ENV === 'production'
-  ? process.env.CORS_ALLOW_ORIGINS?.split(',') || []
-  : ['http://localhost:3000'];
+const corsAllowOrigins =
+  process.env.NODE_ENV === "production"
+    ? process.env.CORS_ALLOW_ORIGINS?.split(",") || []
+    : ["http://localhost:3000"];
 
 // Enable CORS for the new Next.js app
-app.use(cors({
-  origin: corsAllowOrigins
-}));
+app.use(
+  cors({
+    origin: corsAllowOrigins,
+  }),
+);
 app.use(parseURI);
 app.use(bodyParser.json());
 

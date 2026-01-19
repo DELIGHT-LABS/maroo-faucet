@@ -6,10 +6,7 @@ import {
   http,
   noopStorage,
 } from "wagmi";
-import { mainnet } from "wagmi/chains";
-import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
-
-const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID || "";
+import { coinbaseWallet, injected } from "wagmi/connectors";
 
 // Define Lux chains (own fork with own consensus, not Avalanche)
 export const maroo = defineChain({
@@ -25,17 +22,13 @@ export const maroo = defineChain({
   //     url: "https://explorer.lux.network",
   //   },
   // },
-  testnet: true
+  testnet: true,
 });
-
 
 export function getConfig() {
   return createConfig({
     chains: [maroo],
-    connectors: [
-      injected(),
-      coinbaseWallet({ appName: "Maroo Faucet" }),
-    ],
+    connectors: [injected(), coinbaseWallet({ appName: "Maroo Faucet" })],
     // Use noopStorage for SSR to completely disable persistence on server
     storage: createStorage({
       storage: typeof window !== "undefined" ? cookieStorage : noopStorage,
