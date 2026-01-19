@@ -26,4 +26,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t maroo-faucet-server .
+      - run: docker build -f server/Dockerfile -t maroo-faucet-server .
