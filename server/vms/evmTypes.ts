@@ -12,6 +12,7 @@ export type ChainType = {
   MAX_FEE: string;
   DECIMALS?: number;
   DRIP_AMOUNT: number;
+  MAX_BALANCE?: number;
   RECALIBRATE?: number;
   RATELIMIT: {
     WINDOW_SIZE: number;

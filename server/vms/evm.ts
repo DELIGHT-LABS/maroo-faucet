@@ -10,6 +10,7 @@ export default class EVM {
   NAME: string;
   DRIP_AMOUNT: BN;
   DECIMALS: number;
+  MAX_BALANCE: BN | null;
   LEGACY: boolean;
   MAX_PRIORITY_FEE: string;
   MAX_FEE: string;
@@ -42,6 +43,9 @@ export default class EVM {
       config.DRIP_AMOUNT.toString(),
       this.DECIMALS,
     );
+    this.MAX_BALANCE = config.MAX_BALANCE
+      ? calculateBaseUnit(config.MAX_BALANCE.toString(), this.DECIMALS)
+      : null;
     this.MAX_PRIORITY_FEE = config.MAX_PRIORITY_FEE;
     this.MAX_FEE = config.MAX_FEE;
     this.RECALIBRATE = config.RECALIBRATE || 30;
@@ -105,6 +109,24 @@ export default class EVM {
     if (!this.web3.utils.isAddress(receiver)) {
       cb({ status: 400, message: "Invalid address! Please try again." });
       return;
+    }
+
+    // Check if receiver already has enough balance
+    if (this.MAX_BALANCE) {
+      try {
+        const receiverBalance = new BN(
+          await this.web3.eth.getBalance(receiver),
+        );
+        if (receiverBalance.gte(this.MAX_BALANCE)) {
+          cb({
+            status: 400,
+            message: `Your balance exceeds the maximum allowed. You already have enough ${this.NAME} tokens.`,
+          });
+          return;
+        }
+      } catch (err: any) {
+        this.log.error(`Failed to check receiver balance: ${err.message}`);
+      }
     }
 
     let amount: BN = this.DRIP_AMOUNT;
