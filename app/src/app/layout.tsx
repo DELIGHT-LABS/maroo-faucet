@@ -6,8 +6,8 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Lux Faucet - Get Test Tokens",
-  description: "Request test tokens for Lux testnets and subnets",
+  title: "Maroo Faucet - Get Test Tokens",
+  description: "Request test tokens for Maroo testnets and subnets",
 };
 
 export default function RootLayout({

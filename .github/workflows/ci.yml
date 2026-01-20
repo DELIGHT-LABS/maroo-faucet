@@ -1,19 +1,29 @@
-name: ci
+name: CI
 
-on:  
+on:
+  push:
+    branches: [main]
   pull_request:
-    branches:
-      - main
-      - community-faucet
+    branches: ["**"]
+
 jobs:
-  build:
-    name: Build
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
-      - name: Build docker image
-        uses: docker/build-push-action@v3
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
         with:
-          push: false
-          tags: luxfi/faucet:ci
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f server/Dockerfile -t maroo-faucet-server .

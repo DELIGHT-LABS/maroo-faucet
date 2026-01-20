@@ -25,7 +25,7 @@ export default function Home() {
   const { address, isConnected } = useAccount();
   const { executeRecaptcha } = useGoogleReCaptcha();
   const [recipientAddress, setRecipientAddress] = useState("");
-  const [selectedChain, setSelectedChain] = useState("C");
+  const [selectedChain, setSelectedChain] = useState("MAROO");
   const [loading, setLoading] = useState(false);
   const [chains, setChains] = useState<ChainConfig[]>([]);
   const [currentChainConfig, setCurrentChainConfig] =
@@ -126,10 +126,10 @@ export default function Home() {
       <div className="mx-auto max-w-2xl pt-20">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Lux Testnet Faucet
+            Maroo Testnet Faucet
           </h1>
           <p className="text-lg text-muted-foreground">
-            Get test tokens for Lux networks and subnets
+            Get test tokens for Maroo networks and subnets
           </p>
         </div>
 
@@ -153,7 +153,7 @@ export default function Home() {
                     </option>
                   ))
                 ) : (
-                  <option value="C">Loading...</option>
+                  <option value="MAROO">Loading...</option>
                 )}
               </select>
             </div>

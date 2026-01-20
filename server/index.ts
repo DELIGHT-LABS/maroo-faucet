@@ -3,24 +3,43 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { BN } from "luxfi";
-import { erc20tokens, evmchains, GLOBAL_RL } from "./config.json";
+import config from "./config.json";
 import { parseURI, RateLimiter, VerifyCaptcha } from "./middlewares";
-
 import type {
   ChainType,
   ERC20Type,
   EVMInstanceAndConfig,
+  RateLimiterConfig,
   SendTokenResponse,
 } from "./types";
 import EVM from "./vms/evm";
+
+const {
+  evmchains,
+  erc20tokens,
+  GLOBAL_RL,
+}: {
+  evmchains: ChainType[];
+  erc20tokens: ERC20Type[];
+  GLOBAL_RL: RateLimiterConfig;
+} = config;
 
 dotenv.config();
 
 const app: any = express();
 const router: any = express.Router();
 
+const corsAllowOrigins =
+  process.env.NODE_ENV === "production"
+    ? process.env.CORS_ALLOW_ORIGINS?.split(",") || []
+    : ["http://localhost:3000"];
+
 // Enable CORS for the new Next.js app
-app.use(cors());
+app.use(
+  cors({
+    origin: corsAllowOrigins,
+  }),
+);
 app.use(parseURI);
 app.use(bodyParser.json());
 

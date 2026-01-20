@@ -1,6 +1,6 @@
 # Faucet Smart Contracts
 
-Modern Solidity faucet contract for Lux testnets.
+Modern Solidity faucet contract for Maroo testnets.
 
 ## Features
 
@@ -61,7 +61,7 @@ anvil
 forge script script/DeployFaucet.s.sol --rpc-url localhost --broadcast
 ```
 
-### Lux Testnet
+### Maroo Testnet
 
 ```bash
 # Set environment variables
