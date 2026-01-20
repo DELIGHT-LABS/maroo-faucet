@@ -11,8 +11,25 @@
   },
   "evmchains": [
     {
-      "ID": "MAROO",
+      "ID": "MAROO_TESTNET",
       "NAME": "Maroo Testnet",
+      "TOKEN": "OKRW",
+      "RPC": "http://35.216.60.196:8545",
+      "CHAINID": 815,
+      "EXPLORER": "http://35.216.60.196:8545",
+      "IMAGE": "",
+      "MAX_PRIORITY_FEE": "2000000000",
+      "MAX_FEE": "100000000000",
+      "DRIP_AMOUNT": 1,
+      "DECIMALS": 18,
+      "RATELIMIT": {
+        "MAX_LIMIT": 5,
+        "WINDOW_SIZE": 10
+      }
+    },
+    {
+      "ID": "MAROO_LOCALNET",
+      "NAME": "Maroo Localnet",
       "TOKEN": "OKRW",
       "RPC": "http://localhost:8545",
       "CHAINID": 815,
