@@ -15,8 +15,9 @@
     "exactOptionalPropertyTypes": true,
     "jsx": "react-jsx",
     "paths": {
-      "~/*": ["./src/*"]
-    }
+      "~/*": ["./src/*"],
+      "styled-system/*": ["./styled-system/*"]
+   }
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

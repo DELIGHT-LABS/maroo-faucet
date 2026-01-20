@@ -6,6 +6,7 @@ export default defineConfig({
     resolve: {
       alias: {
         "~": "/src",
+        "styled-system": "/styled-system",
       },
     },
     plugins: [
