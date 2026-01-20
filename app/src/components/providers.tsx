@@ -7,12 +7,12 @@ import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { WagmiProvider } from "wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Toaster } from "sonner";
-import { config } from "@/lib/wagmi";
+import { config } from "~/lib/wagmi";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
-  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
+  const recaptchaSiteKey = import.meta.env.WAKU_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
   return (
     <GoogleReCaptchaProvider reCaptchaKey={recaptchaSiteKey}>

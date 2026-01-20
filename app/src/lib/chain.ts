@@ -7,7 +7,8 @@ export const marooLocalnet = defineChain({
   rpcUrls: {
     default: {
       http: [
-        process.env.NEXT_PUBLIC_MAROO_LOCALNET_RPC || "http://127.0.0.1:8545",
+        import.meta.env.WAKU_PUBLIC_MAROO_LOCALNET_RPC ||
+          "http://127.0.0.1:8545",
       ],
     },
   },
@@ -27,7 +28,7 @@ export const marooTestnet = defineChain({
   rpcUrls: {
     default: {
       http: [
-        process.env.NEXT_PUBLIC_MAROO_TESTNET_RPC ||
+        import.meta.env.WAKU_PUBLIC_MAROO_TESTNET_RPC ||
           "http://35.216.60.196:8545",
       ],
     },
@@ -42,6 +43,6 @@ export const marooTestnet = defineChain({
 });
 
 export const maroo =
-  process.env.NEXT_PUBLIC_MAROO_ID === "MAROO_LOCALNET"
+  import.meta.env.WAKU_PUBLIC_MAROO_ID === "MAROO_LOCALNET"
     ? marooLocalnet
     : marooTestnet;

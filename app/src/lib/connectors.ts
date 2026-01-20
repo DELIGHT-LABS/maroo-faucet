@@ -13,16 +13,24 @@ export const connectors = connectorsForWallets(
   [
     {
       groupName: "Recommended",
-      wallets: [metaMaskWallet, walletConnectWallet],
+      // workaround for SSR issue - https://github.com/rainbow-me/rainbowkit/issues/2476
+      // baseAccount for populating array, otherwise it'd complain for an empty array
+      wallets:
+        typeof indexedDB !== "undefined"
+          ? [metaMaskWallet, walletConnectWallet]
+          : [baseAccount],
     },
     {
       groupName: "Others",
-      wallets: [baseAccount, safeWallet, geminiWallet, okxWallet, trustWallet],
+      wallets:
+        typeof indexedDB !== "undefined"
+          ? [baseAccount, safeWallet, okxWallet, trustWallet, geminiWallet]
+          : [baseAccount],
     },
   ],
   {
     appName: "Maroo Faucet",
-    projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || "",
+    projectId: import.meta.env.WAKU_PUBLIC_WC_PROJECT_ID!,
     appUrl: "http://localhost:3000", // TODO update this
   },
 );

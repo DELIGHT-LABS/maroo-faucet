@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
-import { AddNetworkButton } from "@/components/add-network-button";
+import { AddNetworkButton } from "~/components/add-network-button";
 
 interface ChainConfig {
   ID: string;
@@ -21,9 +21,9 @@ interface ChainConfig {
   };
 }
 
-const MAROO_ID = process.env.NEXT_PUBLIC_MAROO_ID || "MAROO_TESTNET";
+const MAROO_ID = import.meta.env.WAKU_PUBLIC_MAROO_ID || "MAROO_TESTNET";
 
-export default function Home() {
+export function Home() {
   const { address, isConnected } = useAccount();
   const { executeRecaptcha } = useGoogleReCaptcha();
   const [recipientAddress, setRecipientAddress] = useState("");
@@ -35,7 +35,7 @@ export default function Home() {
     const loadChains = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/getChainConfigs`,
+          `${import.meta.env.WAKU_PUBLIC_API_URL || "http://localhost:8000"}/api/getChainConfigs`,
         );
         const data = await response.json();
         setMarooConfig(
@@ -68,7 +68,7 @@ export default function Home() {
       const token = await executeRecaptcha("faucet_request");
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/sendToken`,
+        `${import.meta.env.WAKU_PUBLIC_API_URL || "http://localhost:8000"}/api/sendToken`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

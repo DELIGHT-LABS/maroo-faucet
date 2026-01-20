@@ -14,6 +14,7 @@ export function getConfig() {
     chains: [maroo],
     connectors,
     // Use noopStorage for SSR to completely disable persistence on server
+    // We cannot use cookieStorage on server as req.headers is not accessible on SSG mode
     storage: createStorage({
       storage: typeof window !== "undefined" ? cookieStorage : noopStorage,
     }),
