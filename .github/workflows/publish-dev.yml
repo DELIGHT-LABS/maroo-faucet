@@ -1,0 +1,72 @@
+name: Publish Dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Publish Deployment Approval'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  on-failure:
+    if: ${{ github.event.inputs.deploy == 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'Deployment not approved'
+          exit 1
+
+  build:
+    if: ${{ github.event.inputs.deploy == 'true' || github.event.workflow_run.conclusion == 'success' }}
+    name: Build docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set short SHA
+        id: vars
+        run: echo "short_sha=$(echo ${{ github.event.workflow_run.head_sha || github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      # https://github.com/google-github-actions/auth
+      # https://github.com/google-github-actions/auth/blob/main/action.yml
+      - uses: google-github-actions/auth@v3
+        id: auth
+        with:
+          token_format: access_token  # Generate OAuth 2.0 access token
+          workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ secrets.GCP_SERVICE_ACCOUNT }}'
+          access_token_lifetime: 500s  # Token lifetime in seconds (default: 3600s)
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: '${{ secrets.GCP_REGION }}-docker.pkg.dev'
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: server/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_GAR_REPOSITORY }}/${{ secrets.GCP_GAR_PACKAGE }}:${{ steps.vars.outputs.short_sha }}
+          # https://docs.docker.com/build/ci/github-actions/cache/
+          # https://docs.docker.com/build/cache/backends/gha/
+          cache-from: type=gha  # Import cache from GitHub Actions cache
+          cache-to: type=gha,mode=min  # # Export final layers to GitHub Actions cache
+          provenance: false
