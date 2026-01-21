@@ -1,7 +1,7 @@
 import { defineChain } from "viem";
 
 const marooLocalnet = defineChain({
-  id: 815,
+  id: 31337,
   name: "Maroo Local Testnet",
   nativeCurrency: { name: "Maroo", symbol: "okrw", decimals: 18 },
   rpcUrls: {
@@ -17,7 +17,7 @@ const marooLocalnet = defineChain({
 });
 
 const marooTestnet = defineChain({
-  id: 815,
+  id: 450815,
   name: "Maroo Testnet",
   nativeCurrency: { name: "Maroo", symbol: "okrw", decimals: 18 },
   rpcUrls: {

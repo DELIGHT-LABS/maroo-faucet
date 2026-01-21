@@ -33,7 +33,7 @@
       "NAME": "Maroo Localnet",
       "TOKEN": "OKRW",
       "RPC": "http://localhost:8545",
-      "CHAINID": 450815,
+      "CHAINID": 31337,
       "EXPLORER": "http://localhost:8545",
       "IMAGE": "",
       "MAX_PRIORITY_FEE": "1",
