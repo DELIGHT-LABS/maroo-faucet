@@ -5,14 +5,14 @@ import {
   http,
   noopStorage,
 } from "wagmi";
-import { coinbaseWallet, injected } from "wagmi/connectors";
+import { connectors } from "./connectors";
 
 import { maroo } from "./chain";
 
 export function getConfig() {
   return createConfig({
     chains: [maroo],
-    connectors: [injected(), coinbaseWallet({ appName: "Maroo Faucet" })],
+    connectors,
     // Use noopStorage for SSR to completely disable persistence on server
     storage: createStorage({
       storage: typeof window !== "undefined" ? cookieStorage : noopStorage,
