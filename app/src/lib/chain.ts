@@ -5,7 +5,11 @@ export const marooLocalnet = defineChain({
   name: "Maroo Local Testnet",
   nativeCurrency: { name: "Maroo", symbol: "okrw", decimals: 18 },
   rpcUrls: {
-    default: { http: ["http://127.0.0.1:8545"] },
+    default: {
+      http: [
+        process.env.NEXT_PUBLIC_MAROO_LOCALNET_RPC || "http://127.0.0.1:8545",
+      ],
+    },
   },
   // blockExplorers: {
   //   default: {
@@ -21,7 +25,12 @@ export const marooTestnet = defineChain({
   name: "Maroo Testnet",
   nativeCurrency: { name: "Maroo", symbol: "okrw", decimals: 18 },
   rpcUrls: {
-    default: { http: ["http://35.216.60.196:8545"] },
+    default: {
+      http: [
+        process.env.NEXT_PUBLIC_MAROO_TESTNET_RPC ||
+          "http://35.216.60.196:8545",
+      ],
+    },
   },
   // blockExplorers: {
   //   default: {

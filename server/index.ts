@@ -90,13 +90,18 @@ const populateConfig = (child: any, parent: any): any => {
 
 // Setting up instance for EVM chains
 evmchains.forEach((chain: ChainType): void => {
+  const chainConfig: ChainType = {
+    ...chain,
+    RPC: process.env[`${chain.ID}_RPC`] || chain.RPC,
+  };
+
   const chainInstance: EVM = new EVM(
-    chain,
+    chainConfig,
     process.env[chain.ID] || process.env.PK,
   );
 
   evms.set(chain.ID, {
-    config: chain,
+    config: chainConfig,
     instance: chainInstance,
   });
 });
