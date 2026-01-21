@@ -5,9 +5,9 @@ import {
   http,
   noopStorage,
 } from "wagmi";
-import { connectors } from "./connectors";
 
-import { maroo } from "./chain";
+import { maroo, marooLocalnet, marooTestnet } from "./chain";
+import { connectors } from "./connectors";
 
 export function getConfig() {
   return createConfig({
@@ -19,7 +19,8 @@ export function getConfig() {
     }),
     ssr: true,
     transports: {
-      [maroo.id]: http(),
+      [marooLocalnet.id]: http(),
+      [marooTestnet.id]: http(),
     },
   });
 }
