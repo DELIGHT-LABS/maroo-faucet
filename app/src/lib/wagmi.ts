@@ -1,4 +1,3 @@
-import { defineChain } from "viem";
 import {
   cookieStorage,
   createConfig,
@@ -8,22 +7,7 @@ import {
 } from "wagmi";
 import { coinbaseWallet, injected } from "wagmi/connectors";
 
-// Define Lux chains (own fork with own consensus, not Avalanche)
-export const maroo = defineChain({
-  id: 815,
-  name: "Maroo Testnet",
-  nativeCurrency: { name: "Maroo", symbol: "okrw", decimals: 18 },
-  rpcUrls: {
-    default: { http: ["http://127.0.0.1:8545"] },
-  },
-  // blockExplorers: {
-  //   default: {
-  //     name: "Lux Explorer",
-  //     url: "https://explorer.lux.network",
-  //   },
-  // },
-  testnet: true,
-});
+import { maroo } from "./chain";
 
 export function getConfig() {
   return createConfig({
