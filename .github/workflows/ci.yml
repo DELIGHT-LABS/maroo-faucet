@@ -7,7 +7,7 @@ on:
     branches: ["**"]
 
 jobs:
-  lint:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +21,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+      - run: pnpm check:type
+      - run: pnpm build
+        env:
+          NEXT_PUBLIC_WC_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_WC_PROJECT_ID }}
 
   docker:
     runs-on: ubuntu-latest
