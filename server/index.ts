@@ -38,6 +38,12 @@ const corsAllowOrigins =
 app.use(
   cors({
     origin: corsAllowOrigins,
+    exposedHeaders: [
+      "Retry-After",
+      "RateLimit-Limit",
+      "RateLimit-Remaining",
+      "RateLimit-Reset",
+    ],
   }),
 );
 app.use(parseURI);
