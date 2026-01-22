@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import svgr from "vite-plugin-svgr";
 import { defineConfig } from "waku/config";
 
 export default defineConfig({
@@ -15,6 +16,7 @@ export default defineConfig({
           plugins: ["babel-plugin-react-compiler"],
         },
       }),
+      svgr(),
     ],
   },
 });

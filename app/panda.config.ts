@@ -20,10 +20,20 @@ export default defineConfig({
             100: { value: "#F3F4F6" },
             200: { value: "#E5E7EB" },
             400: { value: "#9CA3AF" },
+            500: { value: "#6B7280" },
             900: { value: "#111827" },
           },
-          primary: { value: "#0096AA", 600: { value: "#007888" } },
-          error: { value: "E43440" },
+          primary: {
+            value: "#0096AA",
+            600: { value: "#007888" },
+            "/5": { value: "rgba(0, 150, 170, 0.05)" },
+            "/10": { value: "rgba(0, 150, 170, 0.1)" },
+            "/25": { value: "rgba(0, 150, 170, 0.25)" },
+          },
+          error: {
+            value: "#E43440",
+            "/10": { value: "rgba(244, 67, 54, 0.1)" },
+          },
         },
       },
       textStyles: {
@@ -101,6 +111,14 @@ export default defineConfig({
           },
         },
         caption: {
+          regular: {
+            value: {
+              fontSize: "12px",
+              fontWeight: "400",
+              lineHeight: "16px",
+              fontStyle: "normal",
+            },
+          },
           medium: {
             value: {
               fontSize: "12px",
