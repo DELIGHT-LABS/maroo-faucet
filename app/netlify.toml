@@ -1,0 +1,6 @@
+[build]
+  command = "pnpm --filter app build"
+  publish = "app/dist/public"
+[functions]
+  included_files = ["private/**"]
+  directory = "netlify-functions"
