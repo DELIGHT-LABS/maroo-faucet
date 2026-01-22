@@ -1,26 +1,24 @@
 "use client";
 
-import { darkTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { WagmiProvider } from "wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
-import { Toaster } from "sonner";
-import { config } from "~/lib/wagmi";
+
+import { RECAPTCHA_SITE_KEY } from "~/shared/lib/env";
+import { config } from "~/shared/lib/wagmi";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
-  const recaptchaSiteKey = import.meta.env.WAKU_PUBLIC_RECAPTCHA_SITE_KEY || "";
-
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={recaptchaSiteKey}>
+    <GoogleReCaptchaProvider reCaptchaKey={RECAPTCHA_SITE_KEY}>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider theme={darkTheme()}>
+          <RainbowKitProvider theme={lightTheme()}>
             {children}
-            <Toaster richColors position="top-right" />
           </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>
