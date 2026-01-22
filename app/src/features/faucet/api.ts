@@ -16,10 +16,26 @@ interface ChainConfig {
   };
 }
 
+// TODO: remove mock once backend is ready
+const MOCK: ChainConfig = {
+  ID: "MAROO_TESTNET",
+  NAME: "Maroo Testnet",
+  TOKEN: "OKRW",
+  RPC: "https://api.maroo-pretestnet.delightlabs.sh",
+  CHAINID: 450815,
+  EXPLORER: "https://www.maroo.io",
+  DRIP_AMOUNT: 100000,
+  RATELIMIT: {
+    MAX_LIMIT: 5,
+    WINDOW_SIZE: 10,
+  },
+};
+
 export async function getChainConfigs(): Promise<ChainConfig[]> {
-  const response = await fetch(`${API_URL}/api/getChainConfigs`);
-  const data = await response.json();
-  return data.configs as ChainConfig[];
+  // const response = await fetch(`${API_URL}/api/getChainConfigs`);
+  // const data = await response.json();
+  // return data.configs as ChainConfig[];
+  return [MOCK];
 }
 
 export async function requestTokens(params: {
