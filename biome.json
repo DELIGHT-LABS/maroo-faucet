@@ -14,7 +14,8 @@
       "!**/cache",
       "!**/contracts",
       "!**/*.css",
-      "!**/styled-system"
+      "!**/styled-system",
+      "!**/pages.gen.ts"
     ]
   },
   "formatter": {
