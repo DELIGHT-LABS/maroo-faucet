@@ -9,6 +9,8 @@ import {
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 
+import { WC_PROJECT_ID } from "./env";
+
 export const connectors = connectorsForWallets(
   [
     {
@@ -30,7 +32,7 @@ export const connectors = connectorsForWallets(
   ],
   {
     appName: "Maroo Faucet",
-    projectId: import.meta.env.WAKU_PUBLIC_WC_PROJECT_ID!,
+    projectId: WC_PROJECT_ID,
     appUrl: "http://localhost:3000", // TODO update this
   },
 );
