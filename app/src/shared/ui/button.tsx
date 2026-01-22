@@ -18,7 +18,11 @@ const button = cva({
         color: "white",
         padding: "10px 20px",
         _hover: { bg: "primary.600" },
-        _disabled: { bg: "primary", opacity: 0.25, pointerEvents: "none" },
+        _disabled: {
+          bg: "primary./10",
+          pointerEvents: "none",
+          color: "primary",
+        },
         textStyle: "button.m",
       },
       ghost: {
@@ -28,6 +32,12 @@ const button = cva({
         _hover: { bg: "gray.300" },
         _disabled: { bg: "gray.50", color: "gray.300", pointerEvents: "none" },
         textStyle: "caption.medium",
+      },
+      transparent: {
+        bg: "transparent",
+        padding: "8px 20px",
+        color: "gray.500",
+        textStyle: "button.m",
       },
     },
   },
