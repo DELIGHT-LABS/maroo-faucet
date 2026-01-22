@@ -38,34 +38,46 @@ export async function getChainConfigs(): Promise<ChainConfig[]> {
   return [MOCK];
 }
 
-export async function requestTokens(params: {
+const delay = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, ms);
+  });
+
+export async function requestTokens(_params: {
   address: string;
   chain: string;
   token: string;
 }) {
-  const response = await fetch(`${API_URL}/api/sendToken`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      address: params.address,
-      chain: params.chain,
-      token: params.token,
-    }),
-  });
+  await delay(2000);
+  return {
+    txHash:
+      "0xea9e178dcdd2b7ecf736887b1026d6f9ac370354308425faae030a9df9dd2210",
+  } as { txHash: `0x${string}` };
+  // const response = await fetch(`${API_URL}/api/sendToken`, {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify({
+  //     address: params.address,
+  //     chain: params.chain,
+  //     token: params.token,
+  //   }),
+  // });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    // Handle rate limit (429)
-    if (response.status === 429) {
-      const retryAfter = Number(response.headers.get("Retry-After")) || 0;
-      throw new RateLimitError(
-        errorData.message || "Too many requests",
-        retryAfter,
-      );
-    }
+  // if (!response.ok) {
+  //   const errorData = await response.json();
+  //   // Handle rate limit (429)
+  //   if (response.status === 429) {
+  //     const retryAfter = Number(response.headers.get("Retry-After")) || 0;
+  //     throw new RateLimitError(
+  //       errorData.message || "Too many requests",
+  //       retryAfter,
+  //     );
+  //   }
 
-    throw new Error(errorData.message || "Failed to request token");
-  }
+  //   throw new Error(errorData.message || "Failed to request token");
+  // }
 
-  return response.json() as unknown as { txHash: `0x${string}` };
+  // return response.json() as unknown as { txHash: `0x${string}` };
 }
