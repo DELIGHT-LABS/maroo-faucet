@@ -6,7 +6,6 @@ const button = cva({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    w: "full",
     rounded: "8px",
     _hover: { cursor: "pointer" },
     _disabled: { pointerEvents: "none" },
@@ -40,9 +39,14 @@ const button = cva({
         textStyle: "button.m",
       },
     },
+    size: {
+      full: { w: "full" },
+      fit: { w: "fit-content" },
+    },
   },
   defaultVariants: {
     color: "primary",
+    size: "full",
   },
 });
 
@@ -55,11 +59,12 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button = ({
   as = "button",
   color,
+  size,
   className,
   ...props
 }: PropsWithChildren<Props & ButtonVariants>) => (
   // TODO: Slot for polymorphic 'as' prop
-  <button {...props} className={cx(button({ color }), className)}>
+  <button {...props} className={cx(button({ color, size }), className)}>
     {props.children}
   </button>
 );

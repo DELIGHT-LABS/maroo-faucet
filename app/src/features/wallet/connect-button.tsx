@@ -113,8 +113,8 @@ export const ConnectButton = ({
                     onClick={() => disconnect()}
                     type="button"
                     color="ghost"
+                    size="fit"
                     disabled={disabled}
-                    className={css({ w: "fit-content" })}
                   >
                     Disconnect
                   </Button>
