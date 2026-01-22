@@ -79,7 +79,7 @@ const getData = async () => {
   const data = {
     title: "Maroo Faucet - Get Test Tokens",
     headline: "Maroo Testnet Faucet",
-    body: "Get test tokens for Maroo networks and subnets",
+    body: "Get test tokens for Maroo networks",
     maroo,
   };
 

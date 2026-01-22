@@ -1,6 +1,6 @@
 import { defineChain } from "viem";
 
-import { LOCALNETL_PRC, MAROO_ID, TESTNET_RPC } from "./env";
+import { LOCALNET_RPC, MAROO_ID, TESTNET_RPC } from "./env";
 
 export const marooLocalnet = defineChain({
   id: 31337,
@@ -8,7 +8,7 @@ export const marooLocalnet = defineChain({
   nativeCurrency: { name: "Maroo", symbol: "okrw", decimals: 18 },
   rpcUrls: {
     default: {
-      http: [LOCALNETL_PRC],
+      http: [LOCALNET_RPC],
     },
   },
   blockExplorers: {

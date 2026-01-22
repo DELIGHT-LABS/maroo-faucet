@@ -57,7 +57,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 
 const getData = async () => {
   const data = {
-    description: "Request test tokens for Maroo testnets and subnets",
+    description: "Request test tokens for Maroo testnets",
     icon: "/favicon.svg",
   };
 
