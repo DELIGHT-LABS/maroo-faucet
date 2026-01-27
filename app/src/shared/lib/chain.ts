@@ -5,7 +5,7 @@ import { LOCALNET_RPC, MAROO_ID, TESTNET_RPC } from "./env";
 export const marooLocalnet = defineChain({
   id: 31337,
   name: "Maroo Local Testnet",
-  nativeCurrency: { name: "Maroo", symbol: "okrw", decimals: 18 },
+  nativeCurrency: { name: "Maroo", symbol: "OKRW", decimals: 18 },
   rpcUrls: {
     default: {
       http: [LOCALNET_RPC],
@@ -23,7 +23,7 @@ export const marooLocalnet = defineChain({
 export const marooTestnet = defineChain({
   id: 450815,
   name: "Maroo Testnet",
-  nativeCurrency: { name: "Maroo", symbol: "okrw", decimals: 18 },
+  nativeCurrency: { name: "Maroo", symbol: "OKRW", decimals: 18 },
   rpcUrls: {
     default: {
       http: [TESTNET_RPC],
