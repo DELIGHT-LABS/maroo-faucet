@@ -23,8 +23,6 @@ import { useTimer } from "./use-timer";
 
 export function FaucetCard() {
   const { address } = useAccount();
-  const [step, setStep] = useState(1);
-
   const {
     mutate: requestToken,
     data,
@@ -44,16 +42,10 @@ export function FaucetCard() {
     : "Network is congested. Please try again.";
 
   const { chainId, isDisconnected } = useAccount();
-
-  useEffect(() => {
-    if (chainId === maroo.id) {
-      setStep(2);
-    }
-  }, [chainId]);
+  const step = chainId === maroo.id ? 2 : 1;
 
   useEffect(() => {
     if (isDisconnected) {
-      setStep(1);
       reset();
     }
   }, [isDisconnected, reset]);
