@@ -1,5 +1,10 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
     "includes": [
       "**",
@@ -8,8 +13,9 @@
       "!**/pnpm-lock.yaml",
       "!**/cache",
       "!**/contracts",
-      "!**/.next",
-      "!**/*.css"
+      "!**/*.css",
+      "!**/styled-system",
+      "!**/pages.gen.ts"
     ]
   },
   "formatter": {
