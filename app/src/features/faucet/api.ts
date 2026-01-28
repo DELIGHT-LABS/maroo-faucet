@@ -1,5 +1,7 @@
+// biome-ignore lint/correctness/noUnusedImports: will be used when API is ready
 import { API_URL } from "~/shared/lib/env";
 
+// biome-ignore lint/correctness/noUnusedImports: will be used when API is ready
 import { RateLimitError } from "./error";
 
 interface ChainConfig {
