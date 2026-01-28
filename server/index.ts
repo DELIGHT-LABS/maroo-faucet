@@ -101,7 +101,9 @@ evmchains.forEach((chain: ChainType): void => {
     RPC: process.env[`${chain.ID}_RPC`] || chain.RPC,
   };
 
-  console.log(`Connecting to ${chain.NAME} (${chain.ID}) at ${chainConfig.RPC}`);
+  console.log(
+    `Connecting to ${chain.NAME} (${chain.ID}) at ${chainConfig.RPC}`,
+  );
 
   const chainInstance: EVM = new EVM(
     chainConfig,
