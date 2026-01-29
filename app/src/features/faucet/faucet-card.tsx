@@ -1,7 +1,6 @@
 "use client";
 
-// biome-ignore lint/correctness/noUnusedImports: will be used when API is ready
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { css } from "styled-system/css";
 import { center, divider, flex } from "styled-system/patterns";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
@@ -12,8 +11,7 @@ import { ConnectButton } from "~/features/wallet/connect-button";
 import IconCheck from "~/shared/assets/icon-check.svg?react";
 import IconRefresh from "~/shared/assets/icon-refresh.svg?react";
 import IconSpinner from "~/shared/assets/icon-spinner.svg?react";
-import { maroo } from "~/shared/lib/chain";
-import { MAROO_ID } from "~/shared/lib/env";
+import { marooTestnet } from "~/shared/lib/chain";
 import { Button } from "~/shared/ui/button";
 import { ErrorCard } from "~/shared/ui/error-card";
 import { Idx } from "~/shared/ui/idx";
@@ -43,7 +41,7 @@ export function FaucetCard() {
     : "Network is congested. Please try again.";
 
   const { chainId, isDisconnected } = useAccount();
-  const step = chainId === maroo.id ? 2 : 1;
+  const step = chainId === marooTestnet.id ? 2 : 1;
 
   useEffect(() => {
     if (isDisconnected) {
@@ -102,7 +100,7 @@ export function FaucetCard() {
 
         {step === 2 && !error && (
           <Button
-            onClick={() => requestToken({ address: address!, chain: MAROO_ID })}
+            onClick={() => requestToken({ address: address! })}
             type="button"
             disabled={isLoading || isConfirmed}
             className={center({ gap: "8px" })}
@@ -124,7 +122,7 @@ export function FaucetCard() {
         )}
         {step === 2 && isConfirmed && (
           <Button
-            onClick={() => requestToken({ address: address!, chain: MAROO_ID })}
+            onClick={() => requestToken({ address: address! })}
             color="transparent"
             type="button"
             className={center({ gap: "8px" })}
@@ -156,7 +154,6 @@ export function FaucetCard() {
                 onClick={() =>
                   requestToken({
                     address: address!,
-                    chain: MAROO_ID,
                   })
                 }
                 className={center({ gap: "8px" })}

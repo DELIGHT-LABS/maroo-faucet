@@ -6,7 +6,7 @@ import { requestTokens } from "./api";
 export const useRequestToken = () => {
   // const { executeRecaptcha } = useGoogleReCaptcha();
   return useMutation({
-    mutationFn: async (params: { address: string; chain: string }) => {
+    mutationFn: async (params: { address: string }) => {
       // if (!executeRecaptcha) {
       //   throw new Error("ReCaptcha not loaded");
       // }
@@ -15,7 +15,6 @@ export const useRequestToken = () => {
 
       return requestTokens({
         address: params.address,
-        chain: params.chain,
         token: "", // TODO: enable recaptcha
       });
     },
