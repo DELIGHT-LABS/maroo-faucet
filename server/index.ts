@@ -44,8 +44,11 @@ const router: any = express.Router();
 
 const corsAllowOrigins =
   process.env.NODE_ENV === "production"
-    ? process.env.CORS_ALLOW_ORIGINS?.split(",") || []
-    : ["http://localhost:3000"];
+    ? [
+      /^https:\/\/deploy-preview-\d+--maroo-faucet\.netlify\.app$/, // deploy preview
+        ...(process.env.CORS_ALLOW_ORIGINS?.split(",") || [])
+      ]
+    : [/^http:\/\/localhost:\d+$/];
 
 // Enable CORS for the new Next.js app
 app.use(
