@@ -26,6 +26,19 @@ const {
 
 dotenv.config();
 
+// Override evmchains with environment variables
+const evmchainsWithEnv: ChainType[] = evmchains.map((chain) => ({
+  ...chain,
+  RPC: process.env[`${chain.ID}_RPC`] || chain.RPC,
+}));
+
+// Override erc20tokens with environment variables
+const erc20tokensWithEnv: ERC20Type[] = erc20tokens.map((token) => ({
+  ...token,
+  CONTRACTADDRESS:
+    process.env[`${token.ID}_CONTRACTADDRESS`] || token.CONTRACTADDRESS,
+}));
+
 const app: any = express();
 const router: any = express.Router();
 
@@ -51,16 +64,20 @@ app.use(bodyParser.json());
 
 new RateLimiter(app, [GLOBAL_RL]);
 
-new RateLimiter(app, [...evmchains, ...erc20tokens]);
+new RateLimiter(app, [...evmchainsWithEnv, ...erc20tokensWithEnv]);
 
 // address rate limiter
-new RateLimiter(app, [...evmchains, ...erc20tokens], (req: any, _res: any) => {
-  const addr = req.body?.address;
+new RateLimiter(
+  app,
+  [...evmchainsWithEnv, ...erc20tokensWithEnv],
+  (req: any, _res: any) => {
+    const addr = req.body?.address;
 
-  if (typeof addr === "string" && addr) {
-    return addr.toUpperCase();
-  }
-});
+    if (typeof addr === "string" && addr) {
+      return addr.toUpperCase();
+    }
+  },
+);
 
 const captcha: VerifyCaptcha = new VerifyCaptcha(
   app,
@@ -95,35 +112,28 @@ const populateConfig = (child: any, parent: any): any => {
 };
 
 // Setting up instance for EVM chains
-evmchains.forEach((chain: ChainType): void => {
-  const chainConfig: ChainType = {
-    ...chain,
-    RPC: process.env[`${chain.ID}_RPC`] || chain.RPC,
-  };
-
-  console.log(
-    `Connecting to ${chain.NAME} (${chain.ID}) at ${chainConfig.RPC}`,
-  );
+evmchainsWithEnv.forEach((chain: ChainType): void => {
+  console.log(`Connecting to ${chain.NAME} (${chain.ID}) at ${chain.RPC}`);
 
   const chainInstance: EVM = new EVM(
-    chainConfig,
+    chain,
     process.env[chain.ID] || process.env.PK,
   );
 
   evms.set(chain.ID, {
-    config: chainConfig,
+    config: chain,
     instance: chainInstance,
   });
 });
 
 // Adding ERC20 token contracts to their HOST evm instances
-erc20tokens.forEach((token: ERC20Type, i: number): void => {
+erc20tokensWithEnv.forEach((token: ERC20Type, i: number): void => {
   if (token.HOSTID) {
-    token = populateConfig(token, getChainByID(evmchains, token.HOSTID));
+    token = populateConfig(token, getChainByID(evmchainsWithEnv, token.HOSTID));
   }
 
-  erc20tokens[i] = token;
-  const chainId = getChainByID(evmchains, token.HOSTID)?.ID;
+  erc20tokensWithEnv[i] = token;
+  const chainId = getChainByID(evmchainsWithEnv, token.HOSTID)?.ID;
   if (!chainId) return;
   const evm = evms.get(chainId);
   if (!evm) return;
@@ -151,7 +161,7 @@ router.post("/sendToken", captcha.middleware, async (req: any, res: any) => {
 
 // GET request for fetching all the chain and token configurations
 router.get("/getChainConfigs", (_req: any, res: any) => {
-  const configs: any = [...evmchains, ...erc20tokens];
+  const configs: any = [...evmchainsWithEnv, ...erc20tokensWithEnv];
   res.send({ configs });
 });
 
