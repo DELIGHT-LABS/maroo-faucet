@@ -4,7 +4,6 @@ import { center, vstack } from "styled-system/patterns";
 import { getChainConfigs } from "~/features/faucet/api";
 import { FaucetCard } from "~/features/faucet/faucet-card";
 
-import { MAROO_ID } from "~/shared/lib/env";
 import { formatNumber } from "~/shared/lib/format";
 
 export default async function HomePage() {
@@ -74,7 +73,7 @@ export default async function HomePage() {
 
 const getData = async () => {
   const configs = await getChainConfigs();
-  const maroo = configs.find((config) => config.ID === MAROO_ID);
+  const [maroo] = configs;
 
   const data = {
     title: "Maroo Faucet - Get Test Tokens",

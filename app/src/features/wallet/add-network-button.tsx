@@ -4,7 +4,7 @@ import { center } from "styled-system/patterns";
 import { useSwitchChain } from "wagmi";
 
 import IconCheck from "~/shared/assets/icon-check.svg?react";
-import { maroo } from "~/shared/lib/chain";
+import { marooTestnet } from "~/shared/lib/chain";
 import { Button } from "~/shared/ui/button";
 
 interface Props {
@@ -55,7 +55,7 @@ export const AddNetworkButton = ({ disabled }: Props) => {
                       To request tokens, add Maroo Network to your wallet first.
                     </p>
                     <Button
-                      onClick={() => switchChain({ chainId: maroo.id })}
+                      onClick={() => switchChain({ chainId: marooTestnet.id })}
                       type="button"
                       disabled={disabled}
                     >
