@@ -1,11 +1,11 @@
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
   baseAccount,
-  geminiWallet,
+  // geminiWallet,
   metaMaskWallet,
-  okxWallet,
-  safeWallet,
-  trustWallet,
+  // okxWallet,
+  // safeWallet,
+  // trustWallet,
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 
@@ -15,20 +15,20 @@ export const connectors = connectorsForWallets(
   [
     {
       groupName: "Recommended",
-      // workaround for SSR issue - https://github.com/rainbow-me/rainbowkit/issues/2476
-      // baseAccount for populating array, otherwise it'd complain for an empty array
+      // There is a SSR issue with WC-based conectors - https://github.com/rainbow-me/rainbowkit/issues/2476
+      // will be fixed in the next release of rainbowkit
       wallets:
         typeof indexedDB !== "undefined"
           ? [metaMaskWallet, walletConnectWallet]
-          : [baseAccount],
+          : // just to avoid empty array error during SSR
+            [baseAccount],
     },
-    {
-      groupName: "Others",
-      wallets:
-        typeof indexedDB !== "undefined"
-          ? [baseAccount, safeWallet, okxWallet, trustWallet, geminiWallet]
-          : [baseAccount],
-    },
+    // TODO: Uncomment this once Maroo is progressively added to wallets via viem/chains, chainlist, etc.
+    // Most wallets don't allow wallet_addEthereumChain for custom chains
+    // {
+    //   groupName: "Others",
+    //   wallets: [baseAccount, safeWallet, okxWallet, trustWallet, geminiWallet]
+    // },
   ],
   {
     appName: "Maroo Faucet",
