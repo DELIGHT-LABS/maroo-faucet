@@ -20,7 +20,7 @@ interface ChainConfig {
 const MOCK: ChainConfig = {
   ID: "MAROO_TESTNET",
   NAME: "Maroo Testnet",
-  TOKEN: "OKRW",
+  TOKEN: "tOKRW",
   RPC: "https://api.maroo-pretestnet.delightlabs.sh",
   CHAINID: 450815,
   EXPLORER: "https://www.maroo.io",
