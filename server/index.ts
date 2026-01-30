@@ -43,7 +43,8 @@ const app: any = express();
 const router: any = express.Router();
 
 const corsAllowOrigins =
-  process.env.NODE_ENV === "production"
+  process.env.NODE_ENV === "production" ||
+  process.env.NODE_ENV === "development"
     ? [
         /^https:\/\/deploy-preview-\d+--maroo-faucet\.netlify\.app$/, // deploy preview
         ...(process.env.CORS_ALLOW_ORIGINS?.split(",") || []),
@@ -145,22 +146,26 @@ erc20tokensWithEnv.forEach((token: ERC20Type, i: number): void => {
 });
 
 // POST request for sending tokens or coins
-router.post("/sendToken", captcha.middleware, async (req: any, res: any) => {
-  const address: string = req.body?.address;
-  const chain: string = req.body?.chain;
-  const erc20: string | undefined = req.body?.erc20;
+router.post(
+  "/sendToken",
+  ...(process.env.NODE_ENV === "production" ? [captcha.middleware] : []),
+  async (req: any, res: any) => {
+    const address: string = req.body?.address;
+    const chain: string = req.body?.chain;
+    const erc20: string | undefined = req.body?.erc20;
 
-  const evm: EVMInstanceAndConfig = evms.get(chain)!;
+    const evm: EVMInstanceAndConfig = evms.get(chain)!;
 
-  if (evm) {
-    evm?.instance.sendToken(address, erc20, (data: SendTokenResponse) => {
-      const { status, message, txHash } = data;
-      res.status(status).send({ message, txHash });
-    });
-  } else {
-    res.status(400).send({ message: "Invalid parameters passed!" });
-  }
-});
+    if (evm) {
+      evm?.instance.sendToken(address, erc20, (data: SendTokenResponse) => {
+        const { status, message, txHash } = data;
+        res.status(status).send({ message, txHash });
+      });
+    } else {
+      res.status(400).send({ message: "Invalid parameters passed!" });
+    }
+  },
+);
 
 // GET request for fetching all the chain and token configurations
 router.get("/getChainConfigs", (_req: any, res: any) => {
