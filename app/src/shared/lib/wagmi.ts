@@ -6,12 +6,12 @@ import {
   noopStorage,
 } from "wagmi";
 
-import { maroo, marooLocalnet, marooTestnet } from "./chain";
+import { marooTestnet } from "./chain";
 import { connectors } from "./connectors";
 
 export function getConfig() {
   return createConfig({
-    chains: [maroo],
+    chains: [marooTestnet],
     connectors,
     // Use noopStorage for SSR to completely disable persistence on server
     // We cannot use cookieStorage on server as req.headers is not accessible on SSG mode
@@ -20,7 +20,6 @@ export function getConfig() {
     }),
     ssr: true,
     transports: {
-      [marooLocalnet.id]: http(),
       [marooTestnet.id]: http(),
     },
   });
