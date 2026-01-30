@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { css } from "styled-system/css";
-import { center, divider, flex } from "styled-system/patterns";
+import { center, divider, flex, vstack } from "styled-system/patterns";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 
 import { AddNetworkButton } from "~/features/wallet/add-network-button";
@@ -134,7 +134,7 @@ export function FaucetCard() {
               <div
                 className={center({
                   h: "40px",
-                  mt: "8px",
+                  mt: "16px",
                   color: "gray.500",
                   bg: "gray.100",
                   opacity: 0.5,
@@ -152,7 +152,7 @@ export function FaucetCard() {
                     address: address!,
                   })
                 }
-                className={center({ gap: "8px" })}
+                className={center({ gap: "8px", mt: "16px" })}
               >
                 <IconRefresh />
                 Retry
