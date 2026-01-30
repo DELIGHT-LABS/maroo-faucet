@@ -35,10 +35,6 @@ export function FaucetCard() {
   const isLoading = isPending || isConfirming;
 
   const isRateLimited = isRateLimitError(error);
-  const errorMessage = isRateLimited
-    ? // TODO: dynamic limit, duration
-      `You have reached the limit of ${5} requests per ${10} minutes. Please try again later.`
-    : "Network is congested. Please try again.";
 
   const { chainId, isDisconnected } = useAccount();
   const step = chainId === marooTestnet.id ? 2 : 1;
@@ -98,9 +94,9 @@ export function FaucetCard() {
           </p>
         </div>
 
-        {step === 2 && !error && (
+        {step === 2 && !error && address && (
           <Button
-            onClick={() => requestToken({ address: address! })}
+            onClick={() => requestToken({ address })}
             type="button"
             disabled={isLoading || isConfirmed}
             className={center({ gap: "8px" })}
@@ -120,9 +116,9 @@ export function FaucetCard() {
             {!isLoading && !isConfirmed && "Request Tokens"}
           </Button>
         )}
-        {step === 2 && isConfirmed && (
+        {step === 2 && isConfirmed && address && (
           <Button
-            onClick={() => requestToken({ address: address! })}
+            onClick={() => requestToken({ address })}
             color="transparent"
             type="button"
             className={center({ gap: "8px" })}
@@ -133,7 +129,7 @@ export function FaucetCard() {
         )}
         {step === 2 && error && (
           <div>
-            <ErrorCard message={errorMessage} />
+            <ErrorCard message={error.message} />
             {isTicking ? (
               <div
                 className={center({

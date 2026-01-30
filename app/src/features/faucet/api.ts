@@ -1,6 +1,6 @@
 import { API_URL } from "~/shared/lib/env";
 
-import { RateLimitError } from "./error";
+import { BalanceError, RateLimitError, withMessage } from "./error";
 
 interface ChainConfig {
   ID: string;
@@ -58,12 +58,19 @@ export async function requestTokens(params: {
     if (response.status === 429) {
       const retryAfter = Number(response.headers.get("Retry-After")) || 0;
       throw new RateLimitError(
-        errorData.message || "Too many requests",
+        `You have reached the limit of ${5} requests per ${10} minutes. Please try again later.`,
         retryAfter,
       );
     }
 
-    throw new Error(errorData.message || "Failed to request token");
+    // TODO: improve error from server
+    if (withMessage(errorData) && errorData.message.includes("balance")) {
+      throw new BalanceError(
+        "You cannot request more tokens while holding 100,000 tOKRW or more.",
+      );
+    }
+
+    throw new Error("Network is congested. Please try again.");
   }
 
   return response.json() as unknown as { txHash: `0x${string}` };
