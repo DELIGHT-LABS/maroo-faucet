@@ -47,6 +47,10 @@ jobs:
         run: pnpm install
 
       - name: Build
+        env:
+          WAKU_PUBLIC_WC_PROJECT_ID: ${{ secrets.WAKU_PUBLIC_WC_PROJECT_ID }}
+          WAKU_PUBLIC_RECAPTCHA_SITE_KEY: ${{ secrets.WAKU_PUBLIC_RECAPTCHA_SITE_KEY }}
+          WAKU_PUBLIC_API_URL: ${{ secrets.WAKU_PUBLIC_API_URL }}
         run: CI=false pnpm --filter app build
 
       - name: Configure AWS credentials
