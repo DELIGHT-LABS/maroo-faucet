@@ -1,3 +1,4 @@
+import { css } from "styled-system/css";
 import { flex } from "styled-system/patterns";
 
 import IconCaution from "../assets/icon-cuation.svg?react";
@@ -17,7 +18,7 @@ export const ErrorCard = ({ message }: { message: string }) => (
       wordBreak: "break-word",
     })}
   >
-    <IconCaution />
+    <IconCaution className={css({ flexShrink: 0 })} />
     <p>{message}</p>
   </div>
 );

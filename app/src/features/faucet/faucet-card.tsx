@@ -128,7 +128,7 @@ export function FaucetCard() {
           </Button>
         )}
         {step === 2 && error && (
-          <div>
+          <div className={css({ w: 0, minW: "full" })}>
             <ErrorCard message={error.message} />
             {isTicking ? (
               <div
