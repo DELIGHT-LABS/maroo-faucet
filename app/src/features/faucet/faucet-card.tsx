@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { css } from "styled-system/css";
-import { center, divider, flex, vstack } from "styled-system/patterns";
+import { center, divider, flex } from "styled-system/patterns";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 
 import { AddNetworkButton } from "~/features/wallet/add-network-button";
@@ -118,7 +118,7 @@ export function FaucetCard() {
         )}
         {step === 2 && isConfirmed && address && (
           <Button
-            onClick={() => requestToken({ address })}
+            onClick={reset}
             color="transparent"
             type="button"
             className={center({ gap: "8px" })}
@@ -147,11 +147,7 @@ export function FaucetCard() {
             ) : (
               <Button
                 color="transparent"
-                onClick={() =>
-                  requestToken({
-                    address: address!,
-                  })
-                }
+                onClick={reset}
                 className={center({ gap: "8px", mt: "16px" })}
               >
                 <IconRefresh />
