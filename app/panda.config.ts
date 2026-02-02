@@ -26,13 +26,9 @@ export default defineConfig({
           primary: {
             value: "#0096AA",
             600: { value: "#007888" },
-            "/5": { value: "rgba(0, 150, 170, 0.05)" },
-            "/10": { value: "rgba(0, 150, 170, 0.1)" },
-            "/25": { value: "rgba(0, 150, 170, 0.25)" },
           },
           error: {
             value: "#E43440",
-            "/10": { value: "rgba(244, 67, 54, 0.1)" },
           },
         },
       },

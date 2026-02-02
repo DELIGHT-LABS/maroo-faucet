@@ -11,7 +11,7 @@ export const ErrorCard = ({ message }: { message: string }) => (
       alignItems: "center",
       border: "0.5px solid",
       borderColor: "error",
-      bg: "error./10",
+      bg: "error/10",
       p: "10px",
       color: "error",
       textStyle: "body2.regular",

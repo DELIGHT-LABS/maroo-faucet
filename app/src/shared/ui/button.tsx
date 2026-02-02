@@ -18,7 +18,7 @@ const button = cva({
         padding: "10px 20px",
         _hover: { bg: "primary.600" },
         _disabled: {
-          bg: "primary./10",
+          bg: "primary/10",
           pointerEvents: "none",
           color: "primary",
         },
