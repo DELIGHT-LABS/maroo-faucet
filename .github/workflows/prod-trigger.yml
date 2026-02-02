@@ -1,0 +1,65 @@
+name: Prod Trigger
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Production Deployment Approval"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  on-failure:
+    if: github.event.inputs.deploy == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'The triggering workflow failed'
+
+  deploy:
+    if: github.event.inputs.deploy == 'true'
+    name: Build, Deploy to S3 bucket
+    runs-on: [ubuntu-latest]
+    # TODO: enable when environments are set up
+    # environment: "production" 
+    strategy:
+      matrix:
+        node-version: [24.x]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - name: Package install
+        run: pnpm install
+
+      - name: Build
+        run: CI=false pnpm --filter app build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: ${{ github.run_id }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload to S3
+        run: |
+          aws s3 sync ./app/dist/public s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+
+      - name: Invalidate Cloudfront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"
