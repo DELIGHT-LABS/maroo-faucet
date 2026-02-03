@@ -15,25 +15,25 @@
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "catalog:",
-    "@tanstack/react-query": "^5.90.19",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "@tanstack/react-query": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "react-google-recaptcha-v3": "^1.11.0",
-    "react-server-dom-webpack": "~19.2.3",
+    "react-server-dom-webpack": "catalog:",
     "viem": "catalog:",
     "wagmi": "catalog:",
-    "waku": "1.0.0-alpha.2"
+    "waku": "catalog:"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
-    "@pandacss/dev": "^1.8.1",
+    "@pandacss/dev": "catalog:",
     "@playwright/test": "^1.56.1",
-    "@types/node": "^22.10.5",
-    "@types/react": "^19.0.5",
-    "@types/react-dom": "^19.0.3",
-    "@vitejs/plugin-react": "^5.1.0",
-    "babel-plugin-react-compiler": "^1.0.0",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
     "typescript": "catalog:",
-    "vite-plugin-svgr": "^4.5.0"
+    "vite-plugin-svgr": "catalog:"
   }
 }
