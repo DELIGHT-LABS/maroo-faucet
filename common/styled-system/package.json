@@ -1,0 +1,43 @@
+{
+  "name": "@maroo/styled-system",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "panda codegen"
+  },
+  "dependencies": {
+    "@maroo/panda-preset": "workspace:*"
+  },
+  "devDependencies": {
+    "@pandacss/dev": "catalog:"
+  },
+  "exports": {
+    "./css": {
+      "types": "./css/index.d.ts",
+      "require": "./css/index.mjs",
+      "import": "./css/index.mjs"
+    },
+    "./tokens": {
+      "types": "./tokens/index.d.ts",
+      "require": "./tokens/index.mjs",
+      "import": "./tokens/index.mjs"
+    },
+    "./types": {
+      "types": "./types/index.d.ts",
+      "require": "./types/index.mjs",
+      "import": "./types/index.mjs"
+    },
+    "./patterns": {
+      "types": "./patterns/index.d.ts",
+      "require": "./patterns/index.mjs",
+      "import": "./patterns/index.mjs"
+    },
+    "./jsx": {
+      "types": "./jsx/index.d.ts",
+      "require": "./jsx/index.mjs",
+      "import": "./jsx/index.mjs"
+    },
+    "./styles.css": "./styles.css"
+  }
+}
