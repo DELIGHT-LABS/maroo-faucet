@@ -9,6 +9,7 @@ import { authStatusAtom } from "../siwe/auth-store";
 import { ConnectButton } from "../wallet/connect-button";
 import { KakaoButton } from "./kakao-button";
 import { KycForm } from "./kyc-form";
+import { LastVerification } from "./last-verification";
 
 const ConnectStep = () => (
   <StepCard active idx={1} title="Connect your wallet">
@@ -38,6 +39,7 @@ const RequestStep = () => {
       {flow === "request-form" && (
         <KycForm afterSubmit={() => setFlow("verify")} />
       )}
+      {flow === "verify" && <LastVerification />}
     </StepCard>
   );
 };
