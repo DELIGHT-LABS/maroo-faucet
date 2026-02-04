@@ -49,7 +49,7 @@ export default async function HomePage() {
           p: "20px",
           gap: "4px",
           rounded: "12px",
-          bg: "primary./5",
+          bg: "primary/5",
           backdropFilter: "blur(9px)",
           color: "primary.600",
           alignItems: "flex-start",

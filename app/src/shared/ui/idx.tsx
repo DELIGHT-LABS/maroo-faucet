@@ -9,7 +9,7 @@ const idx = cva({
     color: {
       primary: {
         color: "primary",
-        bg: "primary./10",
+        bg: "primary/10",
       },
       ghost: {
         color: "#B0B0B0",
