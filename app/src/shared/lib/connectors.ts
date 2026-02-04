@@ -33,6 +33,6 @@ export const connectors = connectorsForWallets(
   {
     appName: "Maroo Faucet",
     projectId: WC_PROJECT_ID,
-    appUrl: "http://localhost:3000", // TODO update this
+    appUrl: "https://maroo-faucet.delightlabs.sh", // TODO update this
   },
 );
