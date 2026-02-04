@@ -1,10 +1,10 @@
 "use client";
 
+import { css, cx } from "@maroo/styled-system/css";
+import { divider, flex } from "@maroo/styled-system/patterns";
 import type { PropsWithChildren, ReactNode } from "react";
-import { css, cx } from "styled-system/css";
-import { divider, flex } from "styled-system/patterns";
 
-import { Idx } from "~/shared/ui/idx";
+import { Idx } from "./idx";
 
 interface StepCardProps {
   idx: number;

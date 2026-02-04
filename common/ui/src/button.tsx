@@ -1,5 +1,5 @@
+import { cva, cx, type RecipeVariantProps } from "@maroo/styled-system/css";
 import type { ButtonHTMLAttributes, PropsWithChildren } from "react";
-import { cva, cx, type RecipeVariantProps } from "styled-system/css";
 
 const button = cva({
   base: {

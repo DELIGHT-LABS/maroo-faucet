@@ -1,5 +1,5 @@
-import { css } from "styled-system/css";
-import { center } from "styled-system/patterns";
+import { css } from "@maroo/styled-system/css";
+import { center } from "@maroo/styled-system/patterns";
 import { VerificationCard } from "~/features/kyc/verification-card";
 
 export default async function HomePage() {
