@@ -1,12 +1,11 @@
+import { css } from "@maroo/styled-system/css";
+import { center, flex } from "@maroo/styled-system/patterns";
+import { Button } from "@maroo/ui";
+import IconMetaMask from "@maroo/ui/assets/icon-metamask.svg?react";
+import IconWallet from "@maroo/ui/assets/icon-wallet.svg?react";
+import IconWalletConnect from "@maroo/ui/assets/icon-walletconnect.svg?react";
 import { ConnectButton as RainbowKitConnect } from "@rainbow-me/rainbowkit";
-import { css } from "styled-system/css";
-import { center, flex } from "styled-system/patterns";
 import { useAccount, useDisconnect } from "wagmi";
-
-import IconMetaMask from "~/shared/assets/icon-metamask.svg?react";
-import IconWallet from "~/shared/assets/icon-wallet.svg?react";
-import IconWalletConnect from "~/shared/assets/icon-walletconnect.svg?react";
-import { Button } from "~/shared/ui/button";
 
 interface Props {
   label?: string;

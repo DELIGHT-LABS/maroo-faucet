@@ -1,5 +1,5 @@
-import { css } from "styled-system/css";
-import { center, vstack } from "styled-system/patterns";
+import { css } from "@maroo/styled-system/css";
+import { center, vstack } from "@maroo/styled-system/patterns";
 
 import { getChainConfigs } from "~/features/faucet/api";
 import { FaucetCard } from "~/features/faucet/faucet-card";

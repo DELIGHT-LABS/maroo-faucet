@@ -16,7 +16,8 @@
     "jsx": "react-jsx",
     "paths": {
       "~/*": ["./src/*"],
-      "styled-system/*": ["./styled-system/*"]
+      "@maroo/ui": ["../common/ui/src"],
+      "@maroo/ui/*": ["../common/ui/src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
