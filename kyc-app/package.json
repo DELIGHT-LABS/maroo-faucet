@@ -13,6 +13,7 @@
   "dependencies": {
     "@rainbow-me/rainbowkit": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "jotai": "^2.17.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-server-dom-webpack": "catalog:",
