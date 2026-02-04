@@ -13,6 +13,12 @@
     "@maroo/styled-system": "workspace:*"
   },
   "peerDependencies": {
-    "react": "catalog:"
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "vite-plugin-svgr": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "vite-plugin-svgr": "catalog:"
   }
 }
