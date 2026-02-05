@@ -57,15 +57,22 @@ export default async function HomePage() {
         })}
       >
         <li>
-          • Limit : {data.maroo?.RATELIMIT.MAX_LIMIT || 1} request
-          {(data.maroo?.RATELIMIT.MAX_LIMIT || 1) > 1 && "s"} per address every{" "}
-          {data.maroo?.RATELIMIT.WINDOW_SIZE || 1440} minutes
-        </li>
-        <li>
-          • Drip amount: {formatNumber(data.maroo?.DRIP_AMOUNT || 2)}{" "}
+          • Receive {formatNumber(data.maroo?.DRIP_AMOUNT || 2)}{" "}
           {data.maroo?.TOKEN || "tokens"} per request
         </li>
-        <li>• Test tokens have no real value</li>
+        <li>
+          • Max {data.maroo?.RATELIMIT.MAX_LIMIT || 1} request
+          {(data.maroo?.RATELIMIT.MAX_LIMIT || 1) > 1 && "s"} every{" "}
+          {data.maroo?.RATELIMIT.WINDOW_SIZE || 1440} mins
+        </li>
+        <li>
+          • Unavailable if holding {formatNumber(100000)}{" "}
+          {data.maroo?.TOKEN || "tokens"}
+        </li>
+        {/* TODO: add body2.medium once common/ui landed */}
+        <li className={css({ fontWeight: 500 })}>
+          • Test tokens have no real value
+        </li>
       </ul>
     </div>
   );
