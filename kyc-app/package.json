@@ -1,6 +1,6 @@
 {
-  "name": "app",
-  "version": "2.0.0",
+  "name": "kyc-app",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,26 +8,20 @@
     "dev": "waku dev",
     "build": "waku build",
     "start": "waku start",
-    "type-check": "tsc --noEmit",
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "catalog:",
     "@tanstack/react-query": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-google-recaptcha-v3": "^1.11.0",
     "react-server-dom-webpack": "catalog:",
     "viem": "catalog:",
     "wagmi": "catalog:",
     "waku": "catalog:"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.11.0",
     "@pandacss/dev": "catalog:",
-    "@playwright/test": "^1.56.1",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
