@@ -1,9 +1,8 @@
 "use client";
 
+import { StepCard, StepCards } from "@maroo/ui";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-
-import { StepCard, StepCards } from "~/shared/ui/step-card";
 
 import { authStatusAtom } from "../siwe/auth-store";
 import { ConnectButton } from "../wallet/connect-button";

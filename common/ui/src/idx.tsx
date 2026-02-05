@@ -1,5 +1,5 @@
-import { cva, cx, type RecipeVariantProps } from "styled-system/css";
-import { circle } from "styled-system/patterns";
+import { cva, cx, type RecipeVariantProps } from "@maroo/styled-system/css";
+import { circle } from "@maroo/styled-system/patterns";
 
 const idx = cva({
   base: {
@@ -9,7 +9,7 @@ const idx = cva({
     color: {
       primary: {
         color: "primary",
-        bg: "primary/10",
+        bg: "primary./10",
       },
       ghost: {
         color: "#B0B0B0",

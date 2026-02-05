@@ -4,13 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "panda codegen",
     "dev": "waku dev",
     "build": "waku build",
     "start": "waku start",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@maroo/panda-preset": "workspace:*",
+    "@maroo/styled-system": "workspace:*",
+    "@maroo/ui": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
     "@rainbow-me/rainbowkit": "catalog:",
     "@tanstack/react-query": "catalog:",

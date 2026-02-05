@@ -1,6 +1,6 @@
-import { css } from "styled-system/css";
-import IconKakao from "~/shared/assets/icon-kakao.svg?react";
-import { Button } from "~/shared/ui/button";
+import { css } from "@maroo/styled-system/css";
+import { Button } from "@maroo/ui";
+import IconKakao from "@maroo/ui/assets/icon-kakao.svg?react";
 
 export const KakaoButton = ({ onClick }: { onClick?: () => void }) => (
   <Button color="kakao" onClick={onClick}>

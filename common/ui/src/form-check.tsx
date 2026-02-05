@@ -1,5 +1,5 @@
+import { flex } from "@maroo/styled-system/patterns";
 import type { InputHTMLAttributes } from "react";
-import { flex } from "styled-system/patterns";
 
 import { Checkbox } from "./check-box";
 

@@ -1,5 +1,5 @@
+import { cva, cx, type RecipeVariantProps } from "@maroo/styled-system/css";
 import type { ButtonHTMLAttributes, PropsWithChildren } from "react";
-import { cva, cx, type RecipeVariantProps } from "styled-system/css";
 
 const button = cva({
   base: {
@@ -38,6 +38,12 @@ const button = cva({
         bg: "transparent",
         padding: "8px 20px",
         color: "gray.500",
+        textStyle: "button.m",
+      },
+      kakao: {
+        bg: "#FEE500",
+        color: "gray.900",
+        padding: "11px 20px",
         textStyle: "button.m",
       },
     },

@@ -1,7 +1,7 @@
-import { css } from "styled-system/css";
-import { flex } from "styled-system/patterns";
+import { css } from "@maroo/styled-system/css";
+import { flex } from "@maroo/styled-system/patterns";
 
-import IconCaution from "../assets/icon-cuation.svg?react";
+import IconCaution from "./assets/icon-cuation.svg?react";
 
 export const ErrorCard = ({ message }: { message: string }) => (
   <div
@@ -11,7 +11,7 @@ export const ErrorCard = ({ message }: { message: string }) => (
       alignItems: "center",
       border: "0.5px solid",
       borderColor: "error",
-      bg: "error/10",
+      bg: "error./10",
       p: "10px",
       color: "error",
       textStyle: "body2.regular",

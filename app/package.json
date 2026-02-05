@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "panda codegen",
     "dev": "waku dev",
     "build": "waku build",
     "start": "waku start",
@@ -14,6 +13,9 @@
     "test:headed": "playwright test --headed"
   },
   "dependencies": {
+    "@maroo/panda-preset": "workspace:*",
+    "@maroo/styled-system": "workspace:*",
+    "@maroo/ui": "workspace:*",
     "@rainbow-me/rainbowkit": "catalog:",
     "@tanstack/react-query": "catalog:",
     "react": "catalog:",

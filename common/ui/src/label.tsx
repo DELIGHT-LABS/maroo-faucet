@@ -1,5 +1,5 @@
+import { css } from "@maroo/styled-system/css";
 import type { PropsWithChildren } from "react";
-import { css } from "styled-system/css";
 
 export const Label = ({ children }: PropsWithChildren) => (
   <label

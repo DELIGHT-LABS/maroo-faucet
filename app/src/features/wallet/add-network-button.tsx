@@ -1,11 +1,10 @@
+import { css } from "@maroo/styled-system/css";
+import { center } from "@maroo/styled-system/patterns";
+import { Button } from "@maroo/ui";
+import IconCheck from "@maroo/ui/assets/icon-check.svg?react";
 import { ConnectButton as RainbowKitConnect } from "@rainbow-me/rainbowkit";
-import { css } from "styled-system/css";
-import { center } from "styled-system/patterns";
 import { useSwitchChain } from "wagmi";
-
-import IconCheck from "~/shared/assets/icon-check.svg?react";
 import { marooTestnet } from "~/shared/lib/chain";
-import { Button } from "~/shared/ui/button";
 
 interface Props {
   disabled?: boolean;

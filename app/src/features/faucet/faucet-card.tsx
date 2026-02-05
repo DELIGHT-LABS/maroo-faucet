@@ -1,20 +1,16 @@
 "use client";
 
+import { css } from "@maroo/styled-system/css";
+import { center } from "@maroo/styled-system/patterns";
+import { Button, ErrorCard, StepCard, StepCards } from "@maroo/ui";
+import IconCheck from "@maroo/ui/assets/icon-check.svg?react";
+import IconRefresh from "@maroo/ui/assets/icon-refresh.svg?react";
+import IconSpinner from "@maroo/ui/assets/icon-spinner.svg?react";
 import { useEffect } from "react";
-import { css } from "styled-system/css";
-import { center } from "styled-system/patterns";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
-
 import { AddNetworkButton } from "~/features/wallet/add-network-button";
 import { ConnectButton } from "~/features/wallet/connect-button";
-
-import IconCheck from "~/shared/assets/icon-check.svg?react";
-import IconRefresh from "~/shared/assets/icon-refresh.svg?react";
-import IconSpinner from "~/shared/assets/icon-spinner.svg?react";
 import { marooTestnet } from "~/shared/lib/chain";
-import { Button } from "~/shared/ui/button";
-import { ErrorCard } from "~/shared/ui/error-card";
-import { StepCard, StepCards } from "~/shared/ui/step-card";
 
 import { isRateLimitError } from "./error";
 import { useRequestToken } from "./use-request-token";
