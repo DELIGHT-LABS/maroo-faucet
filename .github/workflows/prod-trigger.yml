@@ -8,6 +8,14 @@ on:
         required: true
         default: false
         type: boolean
+      target:
+        description: "Deploy Target"
+        required: true
+        default: "faucet"
+        type: choice
+        options:
+          - faucet
+          - kyc
 
 permissions:
   id-token: write
@@ -46,24 +54,55 @@ jobs:
       - name: Package install
         run: pnpm install
 
-      - name: Build
+      # Faucet Build & Deploy
+      - name: Build (Faucet)
+        if: github.event.inputs.target == 'faucet'
         env:
           WAKU_PUBLIC_WC_PROJECT_ID: ${{ secrets.WAKU_PUBLIC_WC_PROJECT_ID }}
           WAKU_PUBLIC_RECAPTCHA_SITE_KEY: ${{ secrets.WAKU_PUBLIC_RECAPTCHA_SITE_KEY }}
           WAKU_PUBLIC_API_URL: ${{ secrets.WAKU_PUBLIC_API_URL }}
         run: CI=false pnpm --filter app build
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (Faucet)
+        if: github.event.inputs.target == 'faucet'
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: ${{ github.run_id }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Upload to S3
+      - name: Upload to S3 (Faucet)
+        if: github.event.inputs.target == 'faucet'
         run: |
           aws s3 sync ./app/dist/public s3://${{ secrets.AWS_BUCKET_NAME }} --delete
 
-      - name: Invalidate Cloudfront cache
+      - name: Invalidate Cloudfront cache (Faucet)
+        if: github.event.inputs.target == 'faucet'
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"
+
+      # KYC Build & Deploy
+      - name: Build (KYC)
+        if: github.event.inputs.target == 'kyc'
+        env:
+          WAKU_PUBLIC_WC_PROJECT_ID: ${{ secrets.KYC_WAKU_PUBLIC_WC_PROJECT_ID }}
+          WAKU_PUBLIC_API_URL: ${{ secrets.KYC_WAKU_PUBLIC_API_URL }}
+        run: CI=false pnpm --filter kyc-app build
+
+      - name: Configure AWS credentials (KYC)
+        if: github.event.inputs.target == 'kyc'
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: ${{ github.run_id }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload to S3 (KYC)
+        if: github.event.inputs.target == 'kyc'
+        run: |
+          aws s3 sync ./kyc-app/dist/public s3://${{ secrets.KYC_AWS_BUCKET_NAME }} --delete
+
+      - name: Invalidate Cloudfront cache (KYC)
+        if: github.event.inputs.target == 'kyc'
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.KYC_AWS_DISTRIBUTION_ID }} --paths "/*"
