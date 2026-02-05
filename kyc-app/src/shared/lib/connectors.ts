@@ -31,8 +31,8 @@ export const connectors = connectorsForWallets(
     // },
   ],
   {
-    appName: "Maroo Faucet",
+    appName: "Maroo Identity Verification",
     projectId: WC_PROJECT_ID,
-    appUrl: "http://localhost:3000", // TODO update this
+    // appUrl: "http://localhost:3000", // TODO update this
   },
 );
