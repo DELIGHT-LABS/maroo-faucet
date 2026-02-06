@@ -28,6 +28,7 @@ export default class EVM {
   waitArr: any[];
   queue: any[];
   error: boolean;
+  isProcessingQueue: boolean;
   log: Log;
   contracts: any;
 
@@ -71,6 +72,7 @@ export default class EVM {
     this.queue = [];
 
     this.error = false;
+    this.isProcessingQueue = false;
 
     this.setupTransactionType();
     this.recalibrateNonceAndBalance();
@@ -267,7 +269,9 @@ export default class EVM {
       this.queue.push({ ...req, nonce: this.nonce });
       this.hasNonce.set(req.receiver + req.id, this.nonce);
       this.nonce++;
-      this.executeQueue();
+      if (!this.isProcessingQueue) {
+        this.executeQueue();
+      }
     } else {
       this.log.warn(`Faucet balance too low!${this.balance}`);
       this.hasError.set(
@@ -278,8 +282,22 @@ export default class EVM {
   }
 
   async executeQueue(): Promise<void> {
-    const { amount, receiver, nonce, id } = this.queue.shift();
-    this.sendTokenUtil(amount, receiver, nonce, id);
+    if (this.isProcessingQueue || this.queue.length === 0) {
+      return;
+    }
+
+    this.isProcessingQueue = true;
+
+    while (this.queue.length > 0) {
+      const { amount, receiver, nonce, id } = this.queue.shift()!;
+      try {
+        await this.sendTokenUtil(amount, receiver, nonce, id);
+      } catch (err: any) {
+        this.log.error(`Error processing transaction with nonce ${nonce}: ${err.message}`);
+      }
+    }
+
+    this.isProcessingQueue = false;
   }
 
   async sendTokenUtil(
@@ -290,47 +308,60 @@ export default class EVM {
   ): Promise<void> {
     this.pendingTxNonces.add(nonce);
     const key = receiver + (id || "");
-    const { rawTransaction, txHash } = await this.getTransaction(
-      receiver,
-      amount,
-      nonce,
-      id,
-    );
+    
+    try {
+      const { rawTransaction, txHash } = await this.getTransaction(
+        receiver,
+        amount,
+        nonce,
+        id,
+      );
 
-    let timeoutOccurred = false;
-    const timeout = setTimeout(() => {
-      timeoutOccurred = true;
-      this.log.error(`Timeout reached for transaction with nonce ${nonce}`);
+      let timeoutOccurred = false;
+      const timeout = setTimeout(() => {
+        timeoutOccurred = true;
+        this.log.error(`Timeout reached for transaction with nonce ${nonce}`);
+        this.pendingTxNonces.delete(nonce);
+        this.hasError.set(
+          key,
+          `Transaction timeout on ${this.NAME}. Please try again.`,
+        );
+      }, 3 * 1000);
+
+      this.web3.eth.sendSignedTransaction(rawTransaction)
+        .then(() => {
+          if (!timeoutOccurred) {
+            this.pendingTxNonces.delete(nonce);
+            clearTimeout(timeout);
+            // Set success with txHash
+            this.hasSuccess.set(key, txHash);
+          }
+        })
+        .catch((err: any) => {
+          if (!timeoutOccurred) {
+            this.pendingTxNonces.delete(nonce);
+            clearTimeout(timeout);
+            this.log.error(err.message);
+            // Extract error message from the error object
+            let errorMessage = err.message || "Unknown error";
+            // Check if it's a nonce error
+            if (errorMessage.includes("nonce") || errorMessage.includes("Nonce")) {
+              errorMessage = `Transaction failed: ${errorMessage}. Please try again.`;
+            } else {
+              errorMessage = `Transaction failed on ${this.NAME}: ${errorMessage}. Please try again.`;
+            }
+            this.hasError.set(key, errorMessage);
+          }
+        });
+      
+    } catch (err: any) {
       this.pendingTxNonces.delete(nonce);
+      this.log.error(`Failed to create transaction with nonce ${nonce}: ${err.message}`);
       this.hasError.set(
         key,
-        `Transaction timeout on ${this.NAME}. Please try again.`,
+        `Failed to create transaction on ${this.NAME}. Please try again.`,
       );
-    }, 3 * 1000);
-
-    try {
-      await this.web3.eth.sendSignedTransaction(rawTransaction);
-      if (!timeoutOccurred) {
-        this.pendingTxNonces.delete(nonce);
-        clearTimeout(timeout);
-        // Set success with txHash
-        this.hasSuccess.set(key, txHash);
-      }
-    } catch (err: any) {
-      if (!timeoutOccurred) {
-        this.pendingTxNonces.delete(nonce);
-        clearTimeout(timeout);
-        this.log.error(err.message);
-        // Extract error message from the error object
-        let errorMessage = err.message || "Unknown error";
-        // Check if it's a nonce error
-        if (errorMessage.includes("nonce") || errorMessage.includes("Nonce")) {
-          errorMessage = `Transaction failed: ${errorMessage}. Please try again.`;
-        } else {
-          errorMessage = `Transaction failed on ${this.NAME}: ${errorMessage}. Please try again.`;
-        }
-        this.hasError.set(key, errorMessage);
-      }
+      throw err;
     }
   }
 
