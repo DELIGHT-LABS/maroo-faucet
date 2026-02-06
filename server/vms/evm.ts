@@ -18,6 +18,7 @@ export default class EVM {
   hasNonce: Map<string, number | undefined>;
   pendingTxNonces: Set<unknown>;
   hasError: Map<string, string | undefined>;
+  hasSuccess: Map<string, string | undefined>;
   nonce: number;
   balance: any;
   isFetched: boolean;
@@ -55,6 +56,7 @@ export default class EVM {
 
     this.hasNonce = new Map();
     this.hasError = new Map();
+    this.hasSuccess = new Map();
     this.pendingTxNonces = new Set();
 
     this.nonce = -1;
@@ -144,43 +146,40 @@ export default class EVM {
 
     this.processRequest({ receiver, amount, id });
 
-    // After transaction is being processed, the nonce will be available and txHash can be returned to user
-    const waitingForNonce = setInterval(async () => {
-      if (this.hasNonce.get(receiver + id) !== undefined) {
-        clearInterval(waitingForNonce);
+    // After transaction is being processed, wait for success or error
+    const waitingForResult = setInterval(async () => {
+      const key = receiver + (id || "");
+      
+      // Check for error first
+      if (this.hasError.get(key) !== undefined) {
+        clearInterval(waitingForResult);
 
-        const nonce: number | undefined = this.hasNonce.get(receiver + id);
-        this.hasNonce.set(receiver + id, undefined);
-
-        const { txHash } = await this.getTransaction(
-          receiver,
-          amount,
-          nonce,
-          id,
-        );
-
-        if (txHash) {
-          cb({
-            status: 200,
-            message: `Transaction successful on ${this.NAME}!`,
-            txHash,
-          });
-        } else {
-          cb({
-            status: 400,
-            message: `Transaction failed on ${this.NAME}! Please try again.`,
-          });
-        }
-      } else if (this.hasError.get(receiver) !== undefined) {
-        clearInterval(waitingForNonce);
-
-        const errorMessage = this.hasError.get(receiver)!;
-        this.hasError.set(receiver, undefined);
+        const errorMessage = this.hasError.get(key)!;
+        this.hasError.set(key, undefined);
+        // Clear nonce if error occurred
+        this.hasNonce.set(key, undefined);
 
         cb({
           status: 400,
           message: errorMessage,
         });
+        return;
+      }
+      
+      // Check for success
+      if (this.hasSuccess.get(key) !== undefined) {
+        clearInterval(waitingForResult);
+
+        const txHash = this.hasSuccess.get(key)!;
+        this.hasSuccess.set(key, undefined);
+        this.hasNonce.set(key, undefined);
+
+        cb({
+          status: 200,
+          message: `Transaction successful on ${this.NAME}!`,
+          txHash,
+        });
+        return;
       }
     }, 300);
   }
@@ -290,26 +289,48 @@ export default class EVM {
     id?: string,
   ): Promise<void> {
     this.pendingTxNonces.add(nonce);
-    const { rawTransaction } = await this.getTransaction(
+    const key = receiver + (id || "");
+    const { rawTransaction, txHash } = await this.getTransaction(
       receiver,
       amount,
       nonce,
       id,
     );
 
+    let timeoutOccurred = false;
+    const timeout = setTimeout(() => {
+      timeoutOccurred = true;
+      this.log.error(`Timeout reached for transaction with nonce ${nonce}`);
+      this.pendingTxNonces.delete(nonce);
+      this.hasError.set(
+        key,
+        `Transaction timeout on ${this.NAME}. Please try again.`,
+      );
+    }, 3 * 1000);
+
     try {
-      const timeout = setTimeout(() => {
-        this.log.error(`Timeout reached for transaction with nonce ${nonce}`);
-        this.pendingTxNonces.delete(nonce);
-      }, 10 * 1000);
-
       await this.web3.eth.sendSignedTransaction(rawTransaction);
-      this.pendingTxNonces.delete(nonce);
-
-      clearTimeout(timeout);
+      if (!timeoutOccurred) {
+        this.pendingTxNonces.delete(nonce);
+        clearTimeout(timeout);
+        // Set success with txHash
+        this.hasSuccess.set(key, txHash);
+      }
     } catch (err: any) {
-      this.pendingTxNonces.delete(nonce);
-      this.log.error(err.message);
+      if (!timeoutOccurred) {
+        this.pendingTxNonces.delete(nonce);
+        clearTimeout(timeout);
+        this.log.error(err.message);
+        // Extract error message from the error object
+        let errorMessage = err.message || "Unknown error";
+        // Check if it's a nonce error
+        if (errorMessage.includes("nonce") || errorMessage.includes("Nonce")) {
+          errorMessage = `Transaction failed: ${errorMessage}. Please try again.`;
+        } else {
+          errorMessage = `Transaction failed on ${this.NAME}: ${errorMessage}. Please try again.`;
+        }
+        this.hasError.set(key, errorMessage);
+      }
     }
   }
 
