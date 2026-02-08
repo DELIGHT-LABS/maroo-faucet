@@ -66,23 +66,6 @@ app.use(
 app.use(parseURI);
 app.use(bodyParser.json());
 
-new RateLimiter(app, [GLOBAL_RL]);
-
-new RateLimiter(app, [...evmchainsWithEnv, ...erc20tokensWithEnv]);
-
-// address rate limiter
-new RateLimiter(
-  app,
-  [...evmchainsWithEnv, ...erc20tokensWithEnv],
-  (req: any, _res: any) => {
-    const addr = req.body?.address;
-
-    if (typeof addr === "string" && addr) {
-      return addr.toUpperCase();
-    }
-  },
-);
-
 const captcha: VerifyCaptcha = new VerifyCaptcha(
   app,
   process.env.CAPTCHA_SECRET!,
@@ -157,9 +140,25 @@ router.post(
     const evm: EVMInstanceAndConfig = evms.get(chain)!;
 
     if (evm) {
+      let responded = false;
+      
+      // 60초 타임아웃 설정 (서버 레벨 보호, 에러 처리 + gap filling 시간 고려)
+      const serverTimeout = setTimeout(() => {
+        if (!responded) {
+          responded = true;
+          res.status(408).send({
+            message: `Request timeout on ${chain}. Please try again.`,
+          });
+        }
+      }, 60 * 1000);
+
       evm?.instance.sendToken(address, erc20, (data: SendTokenResponse) => {
-        const { status, message, txHash } = data;
-        res.status(status).send({ message, txHash });
+        if (!responded) {
+          responded = true;
+          clearTimeout(serverTimeout);
+          const { status, message, txHash } = data;
+          res.status(status).send({ message, txHash });
+        }
       });
     } else {
       res.status(400).send({ message: "Invalid parameters passed!" });
