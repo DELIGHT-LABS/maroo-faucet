@@ -8,19 +8,22 @@
     "start": "node dist/index.js",
     "dev": "tsx watch index.ts",
     "type-check": "tsc --noEmit",
-    "generate:key": "tsx scripts/generateKey.ts"
+    "generate:key": "tsx scripts/generateKey.ts",
+    "loadtest": "tsx scripts/loadtest.ts"
   },
   "dependencies": {
     "axios": "^1.13.2",
     "body-parser": "^2.2.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
+    "ethers": "^6.16.0",
     "express": "^4.18.1",
     "express-rate-limit": "^6.4.0",
     "luxfi": "^3.15.5",
     "range_check": "^2.0.4",
     "totp-generator": "^0.0.13",
     "ts-node": "^10.7.0",
+    "viem": "^2.21.0",
     "web3": "^1.7.3"
   },
   "devDependencies": {
