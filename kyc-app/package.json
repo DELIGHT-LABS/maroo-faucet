@@ -11,11 +11,15 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@rainbow-me/rainbowkit": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "jotai": "^2.17.0",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "react-hook-form": "^7.71.1",
     "react-server-dom-webpack": "catalog:",
+    "valibot": "^1.2.0",
     "viem": "catalog:",
     "wagmi": "catalog:",
     "waku": "catalog:"
