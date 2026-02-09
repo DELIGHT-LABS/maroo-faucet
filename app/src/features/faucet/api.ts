@@ -10,6 +10,7 @@ interface ChainConfig {
   CHAINID: number;
   EXPLORER: string;
   DRIP_AMOUNT: number;
+  MAX_BALANCE: number;
   RATELIMIT: {
     MAX_LIMIT: number;
     WINDOW_SIZE: number;
@@ -25,6 +26,7 @@ const MOCK: ChainConfig = {
   CHAINID: 450815,
   EXPLORER: "https://www.maroo.io",
   DRIP_AMOUNT: 100000,
+  MAX_BALANCE: 100000,
   RATELIMIT: {
     MAX_LIMIT: 5,
     WINDOW_SIZE: 10,
@@ -58,7 +60,7 @@ export async function requestTokens(params: {
     if (response.status === 429) {
       const retryAfter = Number(response.headers.get("Retry-After")) || 0;
       throw new RateLimitError(
-        `You have reached the limit of ${5} requests per ${10} minutes. Please try again later.`,
+        `You have reached the limit of ${MOCK.RATELIMIT.MAX_LIMIT} requests per ${MOCK.RATELIMIT.WINDOW_SIZE} minutes. Please try again later.`,
         retryAfter,
       );
     }
@@ -66,7 +68,7 @@ export async function requestTokens(params: {
     // TODO: improve error from server
     if (withMessage(errorData) && errorData.message.includes("balance")) {
       throw new BalanceError(
-        "You cannot request more tokens while holding 100,000 tOKRW or more.",
+        `You cannot request more tokens while holding ${MOCK.MAX_BALANCE} ${MOCK.TOKEN} or more.`,
       );
     }
 

@@ -57,17 +57,17 @@ export default async function HomePage() {
         })}
       >
         <li>
-          • Receive {formatNumber(data.maroo?.DRIP_AMOUNT || 2)}{" "}
-          {data.maroo?.TOKEN || "tokens"} per request
+          • Receive {formatNumber(data.maroo.DRIP_AMOUNT)} {data.maroo.TOKEN}{" "}
+          per request
         </li>
         <li>
-          • Max {data.maroo?.RATELIMIT.MAX_LIMIT || 1} request
-          {(data.maroo?.RATELIMIT.MAX_LIMIT || 1) > 1 && "s"} every{" "}
-          {data.maroo?.RATELIMIT.WINDOW_SIZE || 1440} mins
+          • Max {data.maroo.RATELIMIT.MAX_LIMIT} request
+          {data.maroo.RATELIMIT.MAX_LIMIT > 1 && "s"} every{" "}
+          {data.maroo.RATELIMIT.WINDOW_SIZE} mins
         </li>
         <li>
-          • Unavailable if holding {formatNumber(100000)}{" "}
-          {data.maroo?.TOKEN || "tokens"}
+          • Unavailable if holding {formatNumber(data.maroo.MAX_BALANCE)}{" "}
+          {data.maroo.TOKEN}
         </li>
         {/* TODO: add body2.medium once common/ui landed */}
         <li className={css({ fontWeight: 500 })}>
@@ -81,6 +81,10 @@ export default async function HomePage() {
 const getData = async () => {
   const configs = await getChainConfigs();
   const [maroo] = configs;
+
+  if (!maroo) {
+    throw new Error("Maroo config not found");
+  }
 
   const data = {
     title: "Maroo Faucet - Get Test Tokens",
