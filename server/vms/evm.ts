@@ -6,7 +6,12 @@ import type { ChainType, RequestType, SendTokenResponse } from "./evmTypes";
 import Log from "./Log";
 import { calculateBaseUnit } from "./utils";
 
-type BatchBufferItem = { receiver: string; amount: BN | number; id?: string; key: string };
+type BatchBufferItem = {
+  receiver: string;
+  amount: BN | number;
+  id?: string;
+  key: string;
+};
 
 export default class EVM {
   web3: any;
@@ -38,7 +43,9 @@ export default class EVM {
 
   constructor(config: ChainType, PK: string | undefined) {
     if (!config.accountImplementation) {
-      throw new Error(`EVM ${config.NAME}: accountImplementation is required for EIP-7702 batch mode`);
+      throw new Error(
+        `EVM ${config.NAME}: accountImplementation is required for EIP-7702 batch mode`,
+      );
     }
     this.web3 = new Web3(config.RPC);
     const privateKey = PK?.startsWith("0x") ? PK : `0x${PK}`;
@@ -78,7 +85,11 @@ export default class EVM {
 
     this.setupTransactionType();
     this.recalibrateNonceAndBalance();
-    this.eip7702.ensureAuthorization().catch((err: any) => this.log.error(`EIP7702 ensureAuthorization: ${err?.message ?? err}`));
+    this.eip7702
+      .ensureAuthorization()
+      .catch((err: any) =>
+        this.log.error(`EIP7702 ensureAuthorization: ${err?.message ?? err}`),
+      );
 
     this.flushBatchInterval = setInterval(() => {
       this.flushBatch();
@@ -158,7 +169,7 @@ export default class EVM {
     // After transaction is being processed, wait for success or error
     const waitingForResult = setInterval(async () => {
       const key = receiver + (id || "");
-      
+
       // Check for error first
       if (this.hasError.get(key) !== undefined) {
         clearInterval(waitingForResult);
@@ -172,7 +183,7 @@ export default class EVM {
         });
         return;
       }
-      
+
       // Check for success
       if (this.hasSuccess.get(key) !== undefined) {
         clearInterval(waitingForResult);
@@ -283,7 +294,11 @@ export default class EVM {
   }
 
   async flushBatch(): Promise<void> {
-    if (!this.eip7702.hasAuthorization() || this.batchBuffer.length === 0 || this.isFlushing) {
+    if (
+      !this.eip7702.hasAuthorization() ||
+      this.batchBuffer.length === 0 ||
+      this.isFlushing
+    ) {
       return;
     }
     this.isFlushing = true;
@@ -291,7 +306,10 @@ export default class EVM {
     const batch = this.batchBuffer.splice(0, take);
     const calls = batch.map((item) => {
       if (!item.id || !this.contracts.get(item.id)) {
-        const value = typeof item.amount === "number" ? BigInt(item.amount) : BigInt((item.amount as BN).toString());
+        const value =
+          typeof item.amount === "number"
+            ? BigInt(item.amount)
+            : BigInt((item.amount as BN).toString());
         return {
           target: item.receiver,
           value,
@@ -299,7 +317,9 @@ export default class EVM {
         };
       }
       const contract = this.contracts.get(item.id);
-      const data = contract.methods.transfer(item.receiver, item.amount).encodeABI() as `0x${string}`;
+      const data = contract.methods
+        .transfer(item.receiver, item.amount)
+        .encodeABI() as `0x${string}`;
       return {
         target: contract.config.CONTRACTADDRESS as string,
         value: BigInt(0),
@@ -316,11 +336,16 @@ export default class EVM {
     } catch (err: any) {
       const raw = err?.message ?? String(err);
       const firstLine = raw.split(/\n/)[0]?.trim() ?? raw;
-      const shortMessage = firstLine.length > 280 ? firstLine.slice(0, 280) + "…" : firstLine;
+      const shortMessage =
+        firstLine.length > 280 ? `${firstLine.slice(0, 280)}…` : firstLine;
       this.log.error(`flushBatch (batch=${batch.length}): ${shortMessage}`);
-      const userMessage = firstLine.length > 200 ? firstLine.slice(0, 200) + "…" : firstLine;
+      const userMessage =
+        firstLine.length > 200 ? `${firstLine.slice(0, 200)}…` : firstLine;
       for (const item of batch) {
-        this.hasError.set(item.key, `Transaction failed on ${this.NAME}: ${userMessage}. Please try again.`);
+        this.hasError.set(
+          item.key,
+          `Transaction failed on ${this.NAME}: ${userMessage}. Please try again.`,
+        );
       }
     } finally {
       this.isFlushing = false;

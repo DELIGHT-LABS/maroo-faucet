@@ -24,8 +24,8 @@
       "MAX_BALANCE": 100000000,
       "DECIMALS": 18,
       "RATELIMIT": {
-          "MAX_LIMIT": 5,
-          "WINDOW_SIZE": 10
+        "MAX_LIMIT": 5,
+        "WINDOW_SIZE": 10
       },
       "accountImplementation": "0xe743A88Ed0aD76aC59AF641B38f9CD597f75519E"
     }

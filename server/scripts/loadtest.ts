@@ -25,7 +25,7 @@ const CHAIN = process.env.CHAIN ?? "MAROO_TESTNET";
  */
 function addressForIndex(i: number): string {
   const hex = i.toString(16).padStart(4, "0").slice(-4);
-  return "0x" + "1".repeat(36) + hex;
+  return `0x${"1".repeat(36)}${hex}`;
 }
 
 interface Result {
@@ -49,8 +49,14 @@ async function sendOne(requestIndex: number): Promise<Result> {
       }),
     });
     const durationMs = performance.now() - start;
-    return { status: res.status, durationMs, ok: res.ok, requestIndex, address };
-  } catch (err) {
+    return {
+      status: res.status,
+      durationMs,
+      ok: res.ok,
+      requestIndex,
+      address,
+    };
+  } catch (_err) {
     const durationMs = performance.now() - start;
     return { status: 0, durationMs, ok: false, requestIndex, address };
   }
@@ -58,7 +64,9 @@ async function sendOne(requestIndex: number): Promise<Result> {
 
 async function run(): Promise<void> {
   console.log("=== /api/sendToken RPS 로드 테스트 ===\n");
-  console.log(`BASE_URL=${BASE_URL}  CONCURRENCY=${CONCURRENCY}  TOTAL=${TOTAL}  CHAIN=${CHAIN}\n`);
+  console.log(
+    `BASE_URL=${BASE_URL}  CONCURRENCY=${CONCURRENCY}  TOTAL=${TOTAL}  CHAIN=${CHAIN}\n`,
+  );
 
   const results: Result[] = [];
   const startTotal = performance.now();
@@ -76,12 +84,19 @@ async function run(): Promise<void> {
   // 집계
   const success = results.filter((r) => r.ok).length;
   const rateLimited = results.filter((r) => r.status === 429).length;
-  const clientErrors = results.filter((r) => r.status >= 400 && r.status !== 429);
+  const clientErrors = results.filter(
+    (r) => r.status >= 400 && r.status !== 429,
+  );
   const clientError = clientErrors.length;
   const failed = results.filter((r) => r.status === 0).length;
-  const durations = results.map((r) => r.durationMs).filter((d) => d > 0).sort((a, b) => a - b);
+  const durations = results
+    .map((r) => r.durationMs)
+    .filter((d) => d > 0)
+    .sort((a, b) => a - b);
 
-  const avgMs = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
+  const avgMs = durations.length
+    ? durations.reduce((a, b) => a + b, 0) / durations.length
+    : 0;
   const p50 = durations[Math.floor(durations.length * 0.5)] ?? 0;
   const p95 = durations[Math.floor(durations.length * 0.95)] ?? 0;
   const p99 = durations[Math.floor(durations.length * 0.99)] ?? 0;
@@ -94,7 +109,7 @@ async function run(): Promise<void> {
   console.log(`429 제한:    ${rateLimited}`);
   console.log(`4xx 기타:    ${clientError}`);
   console.log(`실패/타임아웃: ${failed}`);
-  
+
   // 4xx 에러 상세 정보
   if (clientError > 0) {
     console.log("");
@@ -107,13 +122,15 @@ async function run(): Promise<void> {
       }
       statusGroups.get(status)!.push(r);
     });
-    
+
     statusGroups.forEach((errors, status) => {
       console.log(`  ${status}: ${errors.length}건`);
       // 각 상태 코드별 첫 3개 에러의 상세 정보 출력
       const examples = errors.slice(0, 3);
       examples.forEach((err) => {
-        console.log(`    - 주소: ${err.address}, 응답시간: ${err.durationMs.toFixed(2)}ms, 요청#${err.requestIndex}`);
+        console.log(
+          `    - 주소: ${err.address}, 응답시간: ${err.durationMs.toFixed(2)}ms, 요청#${err.requestIndex}`,
+        );
       });
       if (errors.length > 3) {
         console.log(`    ... 외 ${errors.length - 3}건`);
@@ -125,7 +142,9 @@ async function run(): Promise<void> {
   console.log(`처리량 (RPS): ${rps.toFixed(2)} req/s`);
   console.log("");
   console.log("--- 응답 시간 (ms) ---");
-  console.log(`평균: ${avgMs.toFixed(0)}  p50: ${p50.toFixed(0)}  p95: ${p95.toFixed(0)}  p99: ${p99.toFixed(0)}`);
+  console.log(
+    `평균: ${avgMs.toFixed(0)}  p50: ${p50.toFixed(0)}  p95: ${p95.toFixed(0)}  p99: ${p99.toFixed(0)}`,
+  );
   console.log("");
 }
 

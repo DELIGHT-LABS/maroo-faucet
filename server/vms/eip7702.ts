@@ -7,9 +7,9 @@ import {
   createPublicClient,
   createWalletClient,
   encodeFunctionData,
-  http,
   type Hash,
   type Hex,
+  http,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import type { ChainType } from "./evmTypes";
@@ -42,12 +42,19 @@ export type BatchCall = {
 };
 
 export default class EIP7702 {
-  private readonly chain: { id: number; name: string; nativeCurrency: { name: string; symbol: string; decimals: number }; rpcUrls: { default: { http: string[] } } };
+  private readonly chain: {
+    id: number;
+    name: string;
+    nativeCurrency: { name: string; symbol: string; decimals: number };
+    rpcUrls: { default: { http: string[] } };
+  };
   private readonly publicClient: ReturnType<typeof createPublicClient>;
   private readonly walletClient: ReturnType<typeof createWalletClient>;
   private readonly account: ReturnType<typeof privateKeyToAccount>;
   private readonly contractAddress: `0x${string}`;
-  private nextAuthorization: Awaited<ReturnType<ReturnType<typeof createWalletClient>["signAuthorization"]>> | null = null;
+  private nextAuthorization: Awaited<
+    ReturnType<ReturnType<typeof createWalletClient>["signAuthorization"]>
+  > | null = null;
   private nextNonce: number | null = null;
 
   constructor(config: ChainType, privateKey: string) {
@@ -55,7 +62,11 @@ export default class EIP7702 {
     this.chain = {
       id: config.CHAINID,
       name: config.NAME,
-      nativeCurrency: { name: config.TOKEN, symbol: config.TOKEN, decimals: 18 },
+      nativeCurrency: {
+        name: config.TOKEN,
+        symbol: config.TOKEN,
+        decimals: 18,
+      },
       rpcUrls: { default: { http: [config.RPC] } },
     } as const;
     this.account = privateKeyToAccount(pk as `0x${string}`);
@@ -94,7 +105,9 @@ export default class EIP7702 {
 
   async sendBatchWithAuth(calls: BatchCall[]): Promise<Hash> {
     if (this.nextAuthorization == null) {
-      throw new Error("EIP7702: no authorization; call ensureAuthorization() first");
+      throw new Error(
+        "EIP7702: no authorization; call ensureAuthorization() first",
+      );
     }
     const auth = this.nextAuthorization;
     this.nextAuthorization = null;

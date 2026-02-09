@@ -21,15 +21,16 @@
  *   CHAIN_ID           - Chain ID (기본: 450815)
  */
 
-import { JsonRpcProvider, Transaction, Wallet } from "ethers";
 import { config } from "dotenv";
+import { JsonRpcProvider, Transaction, Wallet } from "ethers";
 
 // .env 파일 로드 시도
 config();
 
 // 환경변수 설정
 const PRIVATE_KEY = process.env.PK;
-const RPC_URL = process.env.RPC_URL ?? "https://api.maroo-pretestnet.delightlabs.sh";
+const RPC_URL =
+  process.env.RPC_URL ?? "https://api.maroo-pretestnet.delightlabs.sh";
 const BATCH_SIZE = Number(process.env.BATCH_SIZE ?? 100);
 const TX_INTERVAL_MS = Number(process.env.TX_INTERVAL_MS ?? 0);
 const TOTAL_TXS = Number(process.env.TOTAL_TXS ?? 200);
@@ -67,7 +68,7 @@ interface BroadcastResult {
  */
 function addressForIndex(i: number): string {
   const hex = i.toString(16).padStart(2, "0");
-  return "0x" + "2".repeat(38) + hex;
+  return `0x${"2".repeat(38)}${hex}`;
 }
 
 /**
@@ -77,7 +78,7 @@ async function signTransaction(
   wallet: Wallet,
   receiver: string,
   nonce: number,
-  index: number
+  index: number,
 ): Promise<SignedTransaction> {
   const signStartTime = performance.now();
 
@@ -99,7 +100,7 @@ async function signTransaction(
     const signDuration = performance.now() - signStartTime;
 
     console.log(
-      `[SIGN] index=${index} nonce=${nonce} receiver=${receiver.substring(0, 10)}... duration=${signDuration.toFixed(2)}ms`
+      `[SIGN] index=${index} nonce=${nonce} receiver=${receiver.substring(0, 10)}... duration=${signDuration.toFixed(2)}ms`,
     );
 
     return {
@@ -114,7 +115,7 @@ async function signTransaction(
     const signDuration = performance.now() - signStartTime;
     const message = err instanceof Error ? err.message : String(err);
     console.error(
-      `[SIGN_ERROR] index=${index} nonce=${nonce} error=${message} duration=${signDuration.toFixed(2)}ms`
+      `[SIGN_ERROR] index=${index} nonce=${nonce} error=${message} duration=${signDuration.toFixed(2)}ms`,
     );
     throw err;
   }
@@ -135,15 +136,17 @@ interface MempoolResult {
 async function sendToMempool(
   provider: JsonRpcProvider,
   signedTx: SignedTransaction,
-  broadcastStartTime: number
+  broadcastStartTime: number,
 ): Promise<MempoolResult> {
   try {
-    const response = await provider.broadcastTransaction(signedTx.rawTransaction);
+    const response = await provider.broadcastTransaction(
+      signedTx.rawTransaction,
+    );
     return { response, signedTx, broadcastStartTime };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(
-      `[BROADCAST_ERROR] index=${signedTx.index} nonce=${signedTx.nonce} error=${message}`
+      `[BROADCAST_ERROR] index=${signedTx.index} nonce=${signedTx.nonce} error=${message}`,
     );
     return { response: null, signedTx, broadcastStartTime, error: message };
   }
@@ -152,7 +155,9 @@ async function sendToMempool(
 /**
  * Mempool 결과 배열을 받아 각 tx의 채굴 결과(receipt)를 기다린 뒤 BroadcastResult[] 생성
  */
-async function waitForTxResults(mempoolResults: MempoolResult[]): Promise<BroadcastResult[]> {
+async function waitForTxResults(
+  mempoolResults: MempoolResult[],
+): Promise<BroadcastResult[]> {
   const results = await Promise.all(
     mempoolResults.map(async (m): Promise<BroadcastResult> => {
       const { signedTx, broadcastStartTime } = m;
@@ -200,7 +205,7 @@ async function waitForTxResults(mempoolResults: MempoolResult[]): Promise<Broadc
           broadcastDurationMs: broadcastEndTime - broadcastStartTime,
         };
       }
-    })
+    }),
   );
   return results;
 }
@@ -226,13 +231,18 @@ async function run(): Promise<void> {
 
   // ethers 초기화
   const provider = new JsonRpcProvider(RPC_URL);
-  const privateKey = PRIVATE_KEY.startsWith("0x") ? PRIVATE_KEY : `0x${PRIVATE_KEY}`;
+  const privateKey = PRIVATE_KEY.startsWith("0x")
+    ? PRIVATE_KEY
+    : `0x${PRIVATE_KEY}`;
   const wallet = new Wallet(privateKey, provider);
 
   console.log(`발송 지갑 주소: ${wallet.address}\n`);
 
   // 현재 nonce 가져오기
-  const currentNonce = await provider.getTransactionCount(wallet.address, "latest");
+  const currentNonce = await provider.getTransactionCount(
+    wallet.address,
+    "latest",
+  );
   console.log(`시작 nonce: ${currentNonce}\n`);
 
   const testStartTime = performance.now();
@@ -249,7 +259,9 @@ async function run(): Promise<void> {
     const batchEnd = Math.min(batchStart + BATCH_SIZE, TOTAL_TXS);
     const batchSize = batchEnd - batchStart;
 
-    console.log(`[BATCH_${batchIdx + 1}/${batchCount}] 서명 시작 (${batchSize}개 트랜잭션)`);
+    console.log(
+      `[BATCH_${batchIdx + 1}/${batchCount}] 서명 시작 (${batchSize}개 트랜잭션)`,
+    );
     const batchSignStartTime = performance.now();
 
     // 배치 내 모든 트랜잭션 병렬 서명
@@ -273,16 +285,21 @@ async function run(): Promise<void> {
       const minNonce = signedBatch[0]?.nonce;
       const maxNonce = signedBatch[signedBatch.length - 1]?.nonce;
       console.log(
-        `[BATCH_${batchIdx + 1}/${batchCount}] 서명 완료 (${batchSize}개) nonce ${minNonce}~${maxNonce} - ${batchSignDuration.toFixed(2)}ms\n`
+        `[BATCH_${batchIdx + 1}/${batchCount}] 서명 완료 (${batchSize}개) nonce ${minNonce}~${maxNonce} - ${batchSignDuration.toFixed(2)}ms\n`,
       );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error(`[BATCH_${batchIdx + 1}/${batchCount}] 서명 실패: ${message}\n`);
+      console.error(
+        `[BATCH_${batchIdx + 1}/${batchCount}] 서명 실패: ${message}\n`,
+      );
       // 실패한 배치는 건너뜀
     }
   }
 
-  const totalSigned = signedTxBatches.reduce((sum, batch) => sum + batch.length, 0);
+  const totalSigned = signedTxBatches.reduce(
+    (sum, batch) => sum + batch.length,
+    0,
+  );
   console.log(`총 서명된 트랜잭션: ${totalSigned}개\n`);
 
   if (totalSigned === 0) {
@@ -298,7 +315,10 @@ async function run(): Promise<void> {
   // 정렬된 트랜잭션을 다시 배치로 분할
   signedTxBatches.length = 0; // 기존 배치 초기화
   for (let i = 0; i < allSignedTxs.length; i += BATCH_SIZE) {
-    const batch = allSignedTxs.slice(i, Math.min(i + BATCH_SIZE, allSignedTxs.length));
+    const batch = allSignedTxs.slice(
+      i,
+      Math.min(i + BATCH_SIZE, allSignedTxs.length),
+    );
     signedTxBatches.push(batch);
   }
 
@@ -319,7 +339,7 @@ async function run(): Promise<void> {
     const minNonce = batch[0]?.nonce;
     const maxNonce = batch[batch.length - 1]?.nonce;
     console.log(
-      `[BATCH_${batchIdx + 1}/${signedTxBatches.length}] 브로드캐스트 시작 (${batch.length}개 트랜잭션) nonce ${minNonce}~${maxNonce}`
+      `[BATCH_${batchIdx + 1}/${signedTxBatches.length}] 브로드캐스트 시작 (${batch.length}개 트랜잭션) nonce ${minNonce}~${maxNonce}`,
     );
     const batchBroadcastStartTime = performance.now();
 
@@ -328,25 +348,33 @@ async function run(): Promise<void> {
     for (let txIdx = 0; txIdx < batch.length; txIdx++) {
       const signedTx = batch[txIdx];
       const sendTime = performance.now() - batchBroadcastStartTime;
-      console.log(`[SEND] index=${signedTx.index} nonce=${signedTx.nonce} at ${sendTime.toFixed(2)}ms`);
+      console.log(
+        `[SEND] index=${signedTx.index} nonce=${signedTx.nonce} at ${sendTime.toFixed(2)}ms`,
+      );
       const broadcastStartTime = performance.now();
-      const result = await sendToMempool(provider, signedTx, broadcastStartTime);
+      const result = await sendToMempool(
+        provider,
+        signedTx,
+        broadcastStartTime,
+      );
       mempoolResults.push(result);
     }
-    const mempoolOkCount = mempoolResults.filter(m => m.response != null).length;
+    const mempoolOkCount = mempoolResults.filter(
+      (m) => m.response != null,
+    ).length;
     const mempoolDuration = performance.now() - batchBroadcastStartTime;
     console.log(
-      `[BATCH_${batchIdx + 1}/${signedTxBatches.length}] TXPOOL 수락 완료 - ${mempoolOkCount}/${batch.length} (${mempoolDuration.toFixed(2)}ms)`
+      `[BATCH_${batchIdx + 1}/${signedTxBatches.length}] TXPOOL 수락 완료 - ${mempoolOkCount}/${batch.length} (${mempoolDuration.toFixed(2)}ms)`,
     );
 
     // 루프 끝난 후: 전송한 tx들의 채굴 결과(receipt)를 모두 기다림
     const batchResults = await waitForTxResults(mempoolResults);
     allBroadcastResults.push(...batchResults);
 
-    const batchSuccessCount = batchResults.filter(r => r.success).length;
+    const batchSuccessCount = batchResults.filter((r) => r.success).length;
     const totalBatchDuration = performance.now() - batchBroadcastStartTime;
     console.log(
-      `[BATCH_${batchIdx + 1}/${signedTxBatches.length}] TX 결과 대기 완료 - 성공: ${batchSuccessCount}/${batch.length} - 총 ${totalBatchDuration.toFixed(2)}ms\n`
+      `[BATCH_${batchIdx + 1}/${signedTxBatches.length}] TX 결과 대기 완료 - 성공: ${batchSuccessCount}/${batch.length} - 총 ${totalBatchDuration.toFixed(2)}ms\n`,
     );
   }
 
@@ -357,32 +385,38 @@ async function run(): Promise<void> {
   console.log("\n=== 테스트 결과 ===\n");
 
   const totalBroadcasted = allBroadcastResults.length;
-  const successCount = allBroadcastResults.filter(r => r.success).length;
-  const failCount = allBroadcastResults.filter(r => !r.success).length;
+  const successCount = allBroadcastResults.filter((r) => r.success).length;
+  const failCount = allBroadcastResults.filter((r) => !r.success).length;
 
   console.log(`총 트랜잭션:      ${totalBroadcasted}개`);
   console.log(`성공:            ${successCount}개`);
   console.log(`실패:            ${failCount}개`);
   console.log(`총 소요 시간:     ${totalDurationSec.toFixed(2)}s`);
-  console.log(`처리량 (TPS):     ${(totalBroadcasted / totalDurationSec).toFixed(2)} tx/s`);
+  console.log(
+    `처리량 (TPS):     ${(totalBroadcasted / totalDurationSec).toFixed(2)} tx/s`,
+  );
 
   // 브로드캐스트 시간 통계
   if (successCount > 0) {
     const broadcastDurations = allBroadcastResults
-      .filter(r => r.success)
-      .map(r => r.broadcastDurationMs)
+      .filter((r) => r.success)
+      .map((r) => r.broadcastDurationMs)
       .sort((a, b) => a - b);
 
-    const avgMs = broadcastDurations.reduce((a, b) => a + b, 0) / broadcastDurations.length;
-    const p50 = broadcastDurations[Math.floor(broadcastDurations.length * 0.5)] ?? 0;
-    const p95 = broadcastDurations[Math.floor(broadcastDurations.length * 0.95)] ?? 0;
-    const p99 = broadcastDurations[Math.floor(broadcastDurations.length * 0.99)] ?? 0;
+    const avgMs =
+      broadcastDurations.reduce((a, b) => a + b, 0) / broadcastDurations.length;
+    const p50 =
+      broadcastDurations[Math.floor(broadcastDurations.length * 0.5)] ?? 0;
+    const p95 =
+      broadcastDurations[Math.floor(broadcastDurations.length * 0.95)] ?? 0;
+    const p99 =
+      broadcastDurations[Math.floor(broadcastDurations.length * 0.99)] ?? 0;
     const minMs = broadcastDurations[0] ?? 0;
     const maxMs = broadcastDurations[broadcastDurations.length - 1] ?? 0;
 
     console.log("\n--- 브로드캐스트 응답 시간 (ms) ---");
     console.log(
-      `평균: ${avgMs.toFixed(0)}  중앙값: ${p50.toFixed(0)}  p95: ${p95.toFixed(0)}  p99: ${p99.toFixed(0)}`
+      `평균: ${avgMs.toFixed(0)}  중앙값: ${p50.toFixed(0)}  p95: ${p95.toFixed(0)}  p99: ${p99.toFixed(0)}`,
     );
     console.log(`최소: ${minMs.toFixed(0)}  최대: ${maxMs.toFixed(0)}`);
   }
@@ -390,11 +424,11 @@ async function run(): Promise<void> {
   // 실패한 트랜잭션 상세 정보
   if (failCount > 0) {
     console.log("\n--- 실패한 트랜잭션 ---");
-    const failedResults = allBroadcastResults.filter(r => !r.success);
+    const failedResults = allBroadcastResults.filter((r) => !r.success);
 
     // 에러 타입별 그룹화
     const errorGroups = new Map<string, BroadcastResult[]>();
-    failedResults.forEach(result => {
+    failedResults.forEach((result) => {
       const errorMsg = result.error ?? "Unknown error";
       if (!errorGroups.has(errorMsg)) {
         errorGroups.set(errorMsg, []);
@@ -405,8 +439,10 @@ async function run(): Promise<void> {
     errorGroups.forEach((results, errorMsg) => {
       console.log(`\n에러: ${errorMsg} (${results.length}건)`);
       const examples = results.slice(0, 3);
-      examples.forEach(r => {
-        console.log(`  - index=${r.index} nonce=${r.nonce} txHash=${r.txHash.substring(0, 10)}...`);
+      examples.forEach((r) => {
+        console.log(
+          `  - index=${r.index} nonce=${r.nonce} txHash=${r.txHash.substring(0, 10)}...`,
+        );
       });
       if (results.length > 3) {
         console.log(`  ... 외 ${results.length - 3}건`);
@@ -418,7 +454,7 @@ async function run(): Promise<void> {
 }
 
 // 실행
-run().catch(err => {
+run().catch((err) => {
   console.error("테스트 실행 중 오류 발생:", err);
   process.exit(1);
 });

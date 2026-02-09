@@ -18,18 +18,21 @@
  *   CHAIN_ID                  - Chain ID (기본: 450815)
  */
 
+import { config } from "dotenv";
 import { createPublicClient, createWalletClient, getAddress, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { config } from "dotenv";
 
 config();
 
 const PRIVATE_KEY = process.env.PK;
-const RPC_URL = process.env.RPC_URL ?? "https://api.maroo-pretestnet.delightlabs.sh";
+const RPC_URL =
+  process.env.RPC_URL ?? "https://api.maroo-pretestnet.delightlabs.sh";
 const CHAIN_ID = Number(process.env.CHAIN_ID ?? 450815);
 const BATCH_SIZE = Number(process.env.BATCH_SIZE ?? 500);
 const TOTAL_TXS = Number(process.env.TOTAL_TXS ?? 1000);
-const ACCOUNT_IMPLEMENTATION = process.env.ACCOUNT_IMPLEMENTATION as `0x${string}` | undefined;
+const ACCOUNT_IMPLEMENTATION = process.env.ACCOUNT_IMPLEMENTATION as
+  | `0x${string}`
+  | undefined;
 
 const TX_VALUE = BigInt(1); // 1 wei per transfer
 
@@ -58,7 +61,7 @@ const accountAbi = [
 /** 항상 40 hex (20 bytes) 주소. 인덱스 0~4095 지원. 체크섬 적용. */
 function addressForIndex(i: number): `0x${string}` {
   const hex = i.toString(16).padStart(3, "0").slice(-3);
-  const raw = ("0x" + "2".repeat(37) + hex) as `0x${string}`;
+  const raw = `0x${"2".repeat(37)}${hex}` as `0x${string}`;
   return getAddress(raw) as `0x${string}`;
 }
 
@@ -70,7 +73,9 @@ async function run(): Promise<void> {
     process.exit(1);
   }
   if (!ACCOUNT_IMPLEMENTATION) {
-    console.error("❌ ACCOUNT_IMPLEMENTATION 환경변수가 필요합니다. (예: Simple7702Account 주소)");
+    console.error(
+      "❌ ACCOUNT_IMPLEMENTATION 환경변수가 필요합니다. (예: Simple7702Account 주소)",
+    );
     console.error("   참고: https://eip7702.io/examples#transaction-batching");
     process.exit(1);
   }
@@ -83,7 +88,9 @@ async function run(): Promise<void> {
   } as const;
 
   const account = privateKeyToAccount(
-    (PRIVATE_KEY.startsWith("0x") ? PRIVATE_KEY : `0x${PRIVATE_KEY}`) as `0x${string}`
+    (PRIVATE_KEY.startsWith("0x")
+      ? PRIVATE_KEY
+      : `0x${PRIVATE_KEY}`) as `0x${string}`,
   );
 
   const publicClient = createPublicClient({
@@ -108,7 +115,9 @@ async function run(): Promise<void> {
   const testStartTime = performance.now();
 
   // --- Step 1: Authorization으로 EOA를 계정 구현체에 위임 (Basic authorization) ---
-  console.log("=== Step 1: EOA → 계정 구현체 위임 (signAuthorization + sendTransaction) ===\n");
+  console.log(
+    "=== Step 1: EOA → 계정 구현체 위임 (signAuthorization + sendTransaction) ===\n",
+  );
 
   const authorization = await walletClient.signAuthorization({
     contractAddress: ACCOUNT_IMPLEMENTATION,
@@ -122,8 +131,12 @@ async function run(): Promise<void> {
   });
   console.log(`위임 tx 전송: ${delegateTxHash}`);
 
-  const delegateReceipt = await publicClient.waitForTransactionReceipt({ hash: delegateTxHash });
-  console.log(`위임 컨펌: block ${delegateReceipt.blockNumber}, status=${delegateReceipt.status}\n`);
+  const delegateReceipt = await publicClient.waitForTransactionReceipt({
+    hash: delegateTxHash,
+  });
+  console.log(
+    `위임 컨펌: block ${delegateReceipt.blockNumber}, status=${delegateReceipt.status}\n`,
+  );
 
   if (delegateReceipt.status !== "success") {
     console.error("❌ 위임 트랜잭션이 실패했습니다.");
@@ -157,7 +170,9 @@ async function run(): Promise<void> {
       });
       batchTxHashes.push(hash);
       const elapsed = (performance.now() - batchStartTime).toFixed(2);
-      console.log(`[BATCH_${b + 1}/${batchCount}] ${size}개 전송 → tx ${hash} (${elapsed}ms)`);
+      console.log(
+        `[BATCH_${b + 1}/${batchCount}] ${size}개 전송 → tx ${hash} (${elapsed}ms)`,
+      );
 
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       if (receipt.status === "success") {
