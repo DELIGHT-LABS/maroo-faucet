@@ -37,7 +37,6 @@
       "types": "./jsx/index.d.ts",
       "require": "./jsx/index.mjs",
       "import": "./jsx/index.mjs"
-    },
-    "./styles.css": "./styles.css"
+    }
   }
 }

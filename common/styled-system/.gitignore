@@ -2,4 +2,6 @@ css
 patterns
 tokens
 types
+jsx
+styles.css
 helpers.mjs

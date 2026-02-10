@@ -9,6 +9,8 @@ export default defineConfig({
   // Just emit the package, no actual CSS scanning needed
   include: [],
 
+  jsxFramework: "react",
+
   // Output to current directory (used by `panda emit-pkg`)
   outdir: ".",
 });
