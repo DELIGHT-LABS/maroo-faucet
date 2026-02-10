@@ -7,7 +7,8 @@
     "dev": "waku dev",
     "build": "waku build",
     "start": "waku start",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "generate-http-client": "test -f ./swagger.json && pnpx swagger-typescript-api generate -p  \"./swagger.json\" -o ./src/shared/api/generated -n httpClient.ts || true"
   },
   "dependencies": {
     "@maroo/panda-preset": "workspace:*",
@@ -33,6 +34,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
+    "swagger-typescript-api": "catalog:",
     "typescript": "catalog:",
     "vite-plugin-svgr": "catalog:"
   }

@@ -15,7 +15,8 @@
       "!**/contracts",
       "!**/*.css",
       "!**/styled-system",
-      "!**/pages.gen.ts"
+      "!**/pages.gen.ts",
+      "!**/httpClient.ts"
     ]
   },
   "formatter": {
