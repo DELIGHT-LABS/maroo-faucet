@@ -9,6 +9,8 @@ import { ConnectButton } from "../wallet/connect-button";
 import { KakaoButton } from "./kakao-button";
 import { KycForm } from "./kyc-form";
 import { LastVerification } from "./last-verification";
+import type { KycFormValues } from "./schema";
+import { useRequestVerify } from "./use-request-verify";
 
 const ConnectStep = () => (
   <StepCard active idx={1} title="Connect your wallet">
@@ -24,21 +26,37 @@ const RequestStep = () => {
     "select-method",
   );
 
+  const { resendStep, send, resend, reset } = useRequestVerify();
+
   useEffect(() => {
     if (step === 1) {
       setFlow("select-method");
     }
   }, [step]);
 
+  const handleFormSubmit = (data: KycFormValues) => {
+    send(data);
+    setFlow("verify");
+  };
+
+  const handleRetry = () => {
+    reset();
+    setFlow("select-method");
+  };
+
   return (
     <StepCard idx={2} title="Verify your identity" active={step === 2}>
       {flow === "select-method" && (
         <KakaoButton onClick={() => setFlow("request-form")} />
       )}
-      {flow === "request-form" && (
-        <KycForm afterSubmit={() => setFlow("verify")} />
+      {flow === "request-form" && <KycForm onSubmit={handleFormSubmit} />}
+      {flow === "verify" && (
+        <LastVerification
+          onRetry={handleRetry}
+          onResend={resend}
+          resendStep={resendStep}
+        />
       )}
-      {flow === "verify" && <LastVerification />}
     </StepCard>
   );
 };
