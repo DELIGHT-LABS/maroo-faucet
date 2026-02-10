@@ -15,8 +15,12 @@ export const marooPreset = definePreset({
             50: { value: "#F9FAFB" },
             100: { value: "#F3F4F6" },
             200: { value: "#E5E7EB" },
+            300: { value: "#D1D5DB" },
             400: { value: "#9CA3AF" },
             500: { value: "#6B7280" },
+            600: { value: "#4B5462" },
+            700: { value: "#374151" },
+            800: { value: "#282F3C" },
             900: { value: "#111827" },
           },
           primary: {
