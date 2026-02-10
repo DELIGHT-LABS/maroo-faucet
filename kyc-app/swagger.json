@@ -1,0 +1,334 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health/live": {
+      "get": {
+        "description": "Returns ok if the application process is alive.",
+        "operationId": "HealthController_live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness probe",
+        "tags": ["Health"]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "description": "Returns ok if the application is ready to serve requests (database and cache are connected).",
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadyResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable"
+          }
+        },
+        "summary": "Readiness probe",
+        "tags": ["Health"]
+      }
+    },
+    "/version": {
+      "get": {
+        "description": "Returns the current application version.",
+        "operationId": "VersionController_getVersion",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Application version",
+        "tags": ["Version"]
+      }
+    },
+    "/api/v1/auth/message": {
+      "post": {
+        "description": "Generates an ERC-4361 SIWE message and nonce for wallet signature.",
+        "operationId": "AuthController_message",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid address format"
+          }
+        },
+        "summary": "Generate SIWE message",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/v1/auth/signin": {
+      "post": {
+        "description": "Verifies the signed `ERC-4361` message and checks KYC attestation status.",
+        "operationId": "AuthController_signIn",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignInResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Session required or invalid signature"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Sign in with Ethereum",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/v1/auth/session": {
+      "get": {
+        "description": "Returns the current authenticated session information.",
+        "operationId": "AuthController_session",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get current session",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "description": "Deletes the current session and clears the session cookie.",
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Logout",
+        "tags": ["Auth"]
+      }
+    }
+  },
+  "info": {
+    "title": "KYC Attestation",
+    "version": "0.1.1-dev.b346388"
+  },
+  "components": {
+    "schemas": {
+      "LiveResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok",
+            "enum": ["ok"]
+          }
+        },
+        "required": ["status"]
+      },
+      "ReadyResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok",
+            "enum": ["ok"]
+          },
+          "checks": {
+            "type": "object",
+            "example": {
+              "database": "ok",
+              "cache": "ok"
+            }
+          }
+        },
+        "required": ["status", "checks"]
+      },
+      "VersionResponse": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "example": "1.0.0",
+            "description": "Application version"
+          }
+        },
+        "required": ["version"]
+      },
+      "MessageRequest": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "example": "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
+            "description": "EVM wallet address (EIP-55 checksum)"
+          }
+        },
+        "required": ["address"]
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "kyc.example.com wants you to sign in...",
+            "description": "ERC-4361 formatted SIWE message"
+          }
+        },
+        "required": ["message"]
+      },
+      "SignInRequest": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "kyc.example.com wants you to sign in...",
+            "description": "Original SIWE message that was signed"
+          },
+          "signature": {
+            "type": "string",
+            "example": "0x...",
+            "description": "Signature hex string"
+          }
+        },
+        "required": ["message", "signature"]
+      },
+      "SignInResponse": {
+        "type": "object",
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "example": false,
+            "description": "KYC attestation status"
+          }
+        },
+        "required": ["verified"]
+      },
+      "SessionResponse": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "example": "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
+            "description": "Authenticated wallet address"
+          },
+          "chainId": {
+            "type": "number",
+            "example": 1,
+            "description": "Chain ID"
+          },
+          "expiresAt": {
+            "type": "string",
+            "example": "2026-02-04T12:00:00Z",
+            "description": "Session expiration time"
+          }
+        },
+        "required": ["address", "chainId", "expiresAt"]
+      },
+      "LogoutResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true,
+            "description": "Logout success"
+          }
+        },
+        "required": ["success"]
+      }
+    }
+  }
+}
