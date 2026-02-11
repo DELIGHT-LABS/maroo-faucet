@@ -124,16 +124,20 @@ export default class EIP7702 {
       ],
     });
 
-    const hash = await this.walletClient.sendTransaction({
-      account: this.account,
-      chain: this.chain,
-      authorizationList: [auth],
-      data,
-      to: this.account.address,
-    });
-
-    await this.ensureAuthorization();
-    return hash;
+    try {
+      const hash = await this.walletClient.sendTransaction({
+        account: this.account,
+        chain: this.chain,
+        authorizationList: [auth],
+        data,
+        to: this.account.address,
+      });
+      await this.ensureAuthorization();
+      return hash;
+    } catch (e) {
+      await this.ensureAuthorization();
+      throw e;
+    }
   }
 
   getAddress(): `0x${string}` {
