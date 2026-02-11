@@ -23,13 +23,7 @@ export const siweAuthAdapter = createAuthenticationAdapter({
 
     // TODO: handle error
     if (ok) {
-      authActions.login();
-
-      if (data.verified) {
-        // TODO: update verified status in the store
-        // decide when to refresh the status
-      }
-
+      authActions.login(data.verified);
       return true;
     }
 

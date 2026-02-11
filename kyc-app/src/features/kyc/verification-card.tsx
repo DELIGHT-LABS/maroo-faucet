@@ -1,10 +1,12 @@
 "use client";
 
-import { StepCard, StepCards } from "@maroo/ui";
+import { css } from "@maroo/styled-system/css";
+import { Button, StepCard, StepCards } from "@maroo/ui";
+import IconCheck from "@maroo/ui/assets/icon-check.svg?react";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 
-import { authStatusAtom } from "../siwe/auth-store";
+import { authStateAtom } from "../siwe/auth-store";
 import { ConnectButton } from "../wallet/connect-button";
 import { KakaoButton } from "./kakao-button";
 import { KycForm } from "./kyc-form";
@@ -19,9 +21,10 @@ const ConnectStep = () => (
 );
 
 const RequestStep = () => {
-  const authStatus = useAtomValue(authStatusAtom);
+  const { status, verified } = useAtomValue(authStateAtom);
 
-  const step = authStatus === "authenticated" ? 2 : 1;
+  const step = status === "authenticated" ? 2 : 1;
+
   const [flow, setFlow] = useState<"select-method" | "request-form" | "verify">(
     "select-method",
   );
@@ -47,7 +50,40 @@ const RequestStep = () => {
   return (
     <StepCard idx={2} title="Verify your identity" active={step === 2}>
       {flow === "select-method" && (
-        <KakaoButton onClick={() => setFlow("request-form")} />
+        <>
+          {!verified && (
+            <>
+              <KakaoButton onClick={() => setFlow("request-form")} />
+              <p
+                className={css({
+                  textStyle: "caption.regular",
+                  mt: "10px",
+                  color: "gray.500",
+                })}
+              >
+                You can only verify one wallet per person.
+              </p>
+            </>
+          )}
+
+          {verified && (
+            <>
+              <Button disabled className={css({ gap: "8px" })}>
+                Already verified
+                <IconCheck />
+              </Button>
+              <p
+                className={css({
+                  textStyle: "caption.regular",
+                  mt: "10px",
+                  color: "gray.500",
+                })}
+              >
+                This wallet is already linked to an identity.
+              </p>
+            </>
+          )}
+        </>
       )}
       {flow === "request-form" && <KycForm onSubmit={handleFormSubmit} />}
       {flow === "verify" && (
