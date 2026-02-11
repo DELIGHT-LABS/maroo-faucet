@@ -2,97 +2,107 @@
 
 import { css } from "@maroo/styled-system/css";
 import { center, flex } from "@maroo/styled-system/patterns";
-import { Button } from "@maroo/ui";
+import { Button, ErrorCard } from "@maroo/ui";
 import IconCheck from "@maroo/ui/assets/icon-check.svg?react";
+import IconRefresh from "@maroo/ui/assets/icon-refresh.svg?react";
 import IconSpinner from "@maroo/ui/assets/icon-spinner.svg?react";
-import { useMutation } from "@tanstack/react-query";
 
-const useMockApi = () =>
-  useMutation({
-    mutationFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    },
-  });
+import { Resend } from "./resend";
+import { useCompleteVerify } from "./use-complete-verify";
+import type { ResendStep } from "./use-request-verify";
 
-export const LastVerification = () => {
-  const { isPending, mutate: verify, isSuccess } = useMockApi();
+const CheckYourKakao = () => (
+  <div className={flex({ flexDir: "column" })}>
+    <h3 className={css({ textStyle: "body1.medium", color: "gray.700" })}>
+      Check your kakaotalk
+    </h3>
+    <p
+      className={css({
+        textStyle: "caption.regular",
+        color: "gray.500",
+        mt: "6px",
+      })}
+    >
+      We sent a verification request to your phone.
+      <br />
+      Please approve it to proceed.
+    </p>
+  </div>
+);
+
+export const LastVerification = ({
+  onRetry,
+  onResend,
+  resendStep,
+}: {
+  onRetry: () => void;
+  onResend: () => void;
+  resendStep: ResendStep;
+}) => {
+  const { isPending, mutate: complete, isSuccess, error } = useCompleteVerify();
+
+  const isInitial = !isPending && !isSuccess && !error;
 
   return (
     <div className={flex({ flexDir: "column", gap: "16px" })}>
-      {!isPending && !isSuccess && (
-        <div className={flex({ flexDir: "column" })}>
-          <h3 className={css({ textStyle: "body1.medium", color: "gray.700" })}>
-            Check your kakaotalk
-          </h3>
-          <p
-            className={css({
-              textStyle: "caption.regular",
-              color: "gray.500",
-              mt: "6px",
-            })}
+      {isInitial && <CheckYourKakao />}
+
+      {!error && (
+        <div>
+          <Button
+            disabled={isPending || isSuccess || resendStep === "sending"}
+            onClick={() => complete()}
+            className={center({ gap: "8px" })}
           >
-            We sent a verification request to your phone.
-            <br />
-            Please approve it to proceed.
-          </p>
+            {isPending && (
+              <>
+                Verifying Identity...
+                <IconSpinner className={css({ animation: "spin" })} />
+              </>
+            )}
+
+            {isSuccess && (
+              <>
+                Verified!
+                <IconCheck />
+              </>
+            )}
+
+            {isInitial && "Complete Verification"}
+          </Button>
+
+          {isPending ||
+            (isSuccess && (
+              <p
+                className={css({
+                  textStyle: "caption.regular",
+                  color: "gray.500",
+                  mt: "8px",
+                })}
+              >
+                {isPending && "Recording on-chain, please wait..."}
+                {isSuccess && "You can now close this tab safely."}
+              </p>
+            ))}
         </div>
       )}
 
-      <div>
-        <Button
-          disabled={isPending || isSuccess}
-          onClick={() => verify()}
-          className={center({ gap: "8px" })}
-        >
-          {isPending && (
-            <>
-              Verifying...{" "}
-              <IconSpinner className={css({ animation: "spin" })} />
-            </>
-          )}
+      {error && (
+        <>
+          <ErrorCard message={error.message} />
 
-          {isSuccess && (
-            <>
-              Verified!
-              <IconCheck />
-            </>
-          )}
-
-          {!isPending && !isSuccess && "Complete Verification"}
-        </Button>
-
-        <p
-          className={css({
-            textStyle: "caption.regular",
-            color: "gray.500",
-            mt: "8px",
-          })}
-        >
-          {isPending && "Recording on-chain, please wait..."}
-          {isSuccess && "You can now close this tab safely."}
-        </p>
-      </div>
-
-      {!isPending && !isSuccess && (
-        <div
-          className={center({
-            textStyle: "body2.regular",
-            color: "gray.500",
-            p: "10px 20px",
-          })}
-        >
-          Didnt' receive it?
-          <button
-            className={css({
-              textStyle: "button.m",
-              ml: "4px",
-              cursor: "pointer",
-            })}
+          <Button
+            color="transparent"
+            onClick={onRetry}
+            className={center({ gap: "8px" })}
           >
-            Resend
-          </button>
-        </div>
+            <IconRefresh />
+            Retry
+          </Button>
+        </>
       )}
+
+      {isInitial && <Resend onResend={onResend} step={resendStep} />}
     </div>
   );
 };

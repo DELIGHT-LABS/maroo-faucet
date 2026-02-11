@@ -8,7 +8,11 @@ import { useForm } from "react-hook-form";
 import { formatPhone } from "./phone-number";
 import { type KycFormValues, kycFormSchema } from "./schema";
 
-export const KycForm = ({ afterSubmit }: { afterSubmit: () => void }) => {
+interface Props {
+  onSubmit: (data: KycFormValues) => void;
+}
+
+export const KycForm = ({ onSubmit }: Props) => {
   const {
     register,
     handleSubmit,
@@ -23,11 +27,6 @@ export const KycForm = ({ afterSubmit }: { afterSubmit: () => void }) => {
       agreement: false,
     },
   });
-
-  const onSubmit = (data: KycFormValues) => {
-    console.log("KYC Form submitted:", data);
-    afterSubmit();
-  };
 
   return (
     <form
