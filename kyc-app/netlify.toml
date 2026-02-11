@@ -1,6 +1,3 @@
 [build]
   command = "pnpm --filter kyc-app build"
   publish = "kyc-app/dist/public"
-[functions]
-  included_files = ["private/**"]
-  directory = "netlify-functions"

@@ -1,3 +1,7 @@
+import { API_URL } from "~/shared/lib/env";
+
 import { Api } from "./generated";
 
-export const kycApi = new Api();
+export const kycApi = new Api({
+  baseUrl: API_URL,
+});
