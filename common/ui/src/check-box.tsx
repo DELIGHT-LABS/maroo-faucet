@@ -1,8 +1,8 @@
+import { css, cx } from "@maroo/styled-system/css";
+import { circle } from "@maroo/styled-system/patterns";
 import type { InputHTMLAttributes } from "react";
-import { css, cx } from "styled-system/css";
-import { circle } from "styled-system/patterns";
 
-import IconCheckThick from "../assets/icon-check-thick.svg?react";
+import IconCheckThick from "./assets/icon-check-thick.svg?react";
 
 const wrapper = css({
   display: "inline-flex",

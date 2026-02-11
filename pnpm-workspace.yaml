@@ -2,6 +2,7 @@ packages:
   - 'app'
   - 'kyc-app'
   - 'server'
+  - 'common/*'
 
 catalog:
   '@pandacss/dev': '^1.8.1'

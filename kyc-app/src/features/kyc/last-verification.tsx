@@ -1,12 +1,11 @@
 "use client";
 
+import { css } from "@maroo/styled-system/css";
+import { center, flex } from "@maroo/styled-system/patterns";
+import { Button } from "@maroo/ui";
+import IconCheck from "@maroo/ui/assets/icon-check.svg?react";
+import IconSpinner from "@maroo/ui/assets/icon-spinner.svg?react";
 import { useMutation } from "@tanstack/react-query";
-import { css } from "styled-system/css";
-import { center, flex } from "styled-system/patterns";
-
-import IconCheck from "~/shared/assets/icon-check.svg?react";
-import IconSpinner from "~/shared/assets/icon-spinner.svg?react";
-import { Button } from "~/shared/ui/button";
 
 const useMockApi = () =>
   useMutation({

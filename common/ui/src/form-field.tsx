@@ -1,5 +1,5 @@
-import { css } from "styled-system/css";
-import { flex } from "styled-system/patterns";
+import { css } from "@maroo/styled-system/css";
+import { flex } from "@maroo/styled-system/patterns";
 
 import { Label } from "./label";
 import { TextInput, type TextInputProps } from "./text-input";

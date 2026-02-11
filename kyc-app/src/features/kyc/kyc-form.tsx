@@ -1,12 +1,9 @@
 "use client";
 
 import { valibotResolver } from "@hookform/resolvers/valibot";
+import { vstack } from "@maroo/styled-system/patterns";
+import { Button, FormCheck, FormField } from "@maroo/ui";
 import { useForm } from "react-hook-form";
-import { vstack } from "styled-system/patterns";
-
-import { Button } from "~/shared/ui/button";
-import { FormCheck } from "~/shared/ui/form-check";
-import { FormField } from "~/shared/ui/form-field";
 
 import { formatPhone } from "./phone-number";
 import { type KycFormValues, kycFormSchema } from "./schema";

@@ -1,7 +1,7 @@
+import { css, cx } from "@maroo/styled-system/css";
 import type { HTMLInputTypeAttribute, InputHTMLAttributes } from "react";
-import { css, cx } from "styled-system/css";
 
-import IconCheck from "../assets/icon-check.svg?react";
+import IconCheck from "./assets/icon-check.svg?react";
 
 const inputWrapper = css({
   position: "relative",

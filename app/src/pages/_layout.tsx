@@ -1,6 +1,6 @@
+import { css } from "@maroo/styled-system/css";
+import { vstack } from "@maroo/styled-system/patterns";
 import type { ReactNode } from "react";
-import { css } from "styled-system/css";
-import { vstack } from "styled-system/patterns";
 
 import { Providers } from "~/app/providers";
 import "~/app/styles.css";
