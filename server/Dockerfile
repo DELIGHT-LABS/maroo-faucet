@@ -7,6 +7,7 @@ WORKDIR /app
 
 # Copy workspace files
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY patches ./patches/
 COPY server/package.json ./server/
 
 # Install server dependencies only
@@ -28,6 +29,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy workspace config
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY patches ./patches/
 COPY server/package.json ./server/
 
 # Install production dependencies only
