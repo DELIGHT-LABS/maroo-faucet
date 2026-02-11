@@ -30,12 +30,35 @@ const {
 
 dotenv.config();
 
+// Override GLOBAL_RL with environment variables
+if (process.env.GLOBAL_RL_REVERSE_PROXIES) {
+  const val = Number(process.env.GLOBAL_RL_REVERSE_PROXIES);
+  if (!Number.isNaN(val)) {
+    GLOBAL_RL.RATELIMIT.REVERSE_PROXIES = val;
+  }
+}
+if (process.env.GLOBAL_RL_MAX_LIMIT) {
+  const val = Number(process.env.GLOBAL_RL_MAX_LIMIT);
+  if (!Number.isNaN(val)) {
+    GLOBAL_RL.RATELIMIT.MAX_LIMIT = val;
+  }
+}
+
 // Override evmchains with environment variables
 const evmchainsWithEnv: ChainType[] = evmchains.map((chain) => {
-  const envBatchMax = process.env[`${chain.ID}_EIP7702_BATCH_MAX_SIZE`];
+  const id = chain.ID;
+  const envBatchMax = process.env[`${id}_EIP7702_BATCH_MAX_SIZE`];
+  const dripAmount = Number(process.env[`${id}_DRIP_AMOUNT`]);
+  const maxBalance = Number(process.env[`${id}_MAX_BALANCE`]);
   return {
     ...chain,
-    RPC: process.env[`${chain.ID}_RPC`] || chain.RPC,
+    RPC: process.env[`${id}_RPC`] || chain.RPC,
+    EXPLORER: process.env[`${id}_EXPLORER`] || chain.EXPLORER,
+    MAX_FEE: process.env[`${id}_MAX_FEE`] || chain.MAX_FEE,
+    MAX_PRIORITY_FEE:
+      process.env[`${id}_MAX_PRIORITY_FEE`] || chain.MAX_PRIORITY_FEE,
+    DRIP_AMOUNT: !Number.isNaN(dripAmount) ? dripAmount : chain.DRIP_AMOUNT,
+    MAX_BALANCE: !Number.isNaN(maxBalance) ? maxBalance : chain.MAX_BALANCE,
     accountImplementation:
       process.env[`${chain.ID}_ACCOUNT_IMPLEMENTATION`] ||
       chain.accountImplementation ||

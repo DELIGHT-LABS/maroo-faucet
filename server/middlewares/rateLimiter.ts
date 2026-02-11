@@ -15,7 +15,7 @@ export class RateLimiter {
       const RL_CONFIG = {
         MAX_LIMIT: RATELIMIT.MAX_LIMIT,
         WINDOW_SIZE: RATELIMIT.WINDOW_SIZE,
-        SKIP_FAILED_REQUESTS: RATELIMIT.SKIP_FAILED_REQUESTS || true,
+        SKIP_FAILED_REQUESTS: RATELIMIT.SKIP_FAILED_REQUESTS ?? true,
       };
 
       rateLimiters.set(config.ID, this.getLimiter(RL_CONFIG, keyGenerator));

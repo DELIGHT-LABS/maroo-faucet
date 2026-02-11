@@ -3,7 +3,7 @@
     "ID": "GLOBAL",
     "RATELIMIT": {
       "REVERSE_PROXIES": 2,
-      "MAX_LIMIT": 40,
+      "MAX_LIMIT": 1000,
       "WINDOW_SIZE": 1,
       "PATH": "/",
       "SKIP_FAILED_REQUESTS": false
@@ -20,8 +20,8 @@
       "IMAGE": "",
       "MAX_PRIORITY_FEE": "0",
       "MAX_FEE": "10000000000000000000",
-      "DRIP_AMOUNT": 100000,
-      "MAX_BALANCE": 100000000,
+      "DRIP_AMOUNT": 5000,
+      "MAX_BALANCE": 10000,
       "DECIMALS": 18,
       "RATELIMIT": {
         "MAX_LIMIT": 5,
