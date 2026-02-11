@@ -22,15 +22,29 @@ const {
   evmchains: ChainType[];
   erc20tokens: ERC20Type[];
   GLOBAL_RL: RateLimiterConfig;
-} = config;
+} = config as {
+  evmchains: ChainType[];
+  erc20tokens: ERC20Type[];
+  GLOBAL_RL: RateLimiterConfig;
+};
 
 dotenv.config();
 
 // Override evmchains with environment variables
-const evmchainsWithEnv: ChainType[] = evmchains.map((chain) => ({
-  ...chain,
-  RPC: process.env[`${chain.ID}_RPC`] || chain.RPC,
-}));
+const evmchainsWithEnv: ChainType[] = evmchains.map((chain) => {
+  const envBatchMax = process.env[`${chain.ID}_EIP7702_BATCH_MAX_SIZE`];
+  return {
+    ...chain,
+    RPC: process.env[`${chain.ID}_RPC`] || chain.RPC,
+    accountImplementation:
+      process.env[`${chain.ID}_ACCOUNT_IMPLEMENTATION`] ||
+      chain.accountImplementation ||
+      "",
+    ...(envBatchMax !== undefined && envBatchMax !== ""
+      ? { eip7702BatchMaxSize: Number(envBatchMax) }
+      : {}),
+  };
+});
 
 // Override erc20tokens with environment variables
 const erc20tokensWithEnv: ERC20Type[] = erc20tokens.map((token) => ({
@@ -117,6 +131,12 @@ const populateConfig = (child: any, parent: any): any => {
 
 // Setting up instance for EVM chains
 evmchainsWithEnv.forEach((chain: ChainType): void => {
+  if (!chain.accountImplementation) {
+    console.warn(
+      `Skipping ${chain.NAME} (${chain.ID}): accountImplementation required (e.g. ${chain.ID}_ACCOUNT_IMPLEMENTATION)`,
+    );
+    return;
+  }
   console.log(`Connecting to ${chain.NAME} (${chain.ID}) at ${chain.RPC}`);
 
   const chainInstance: EVM = new EVM(

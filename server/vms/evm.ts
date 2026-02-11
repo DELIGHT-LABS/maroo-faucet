@@ -1,9 +1,18 @@
 import { BN } from "luxfi";
 import Web3 from "web3";
 import ERC20Interface from "./ERC20Interface.json";
+import EIP7702 from "./eip7702";
 import type { ChainType, RequestType, SendTokenResponse } from "./evmTypes";
 import Log from "./Log";
 import { calculateBaseUnit } from "./utils";
+
+type BatchBufferItem = {
+  receiver: string;
+  amount: BN | number;
+  id?: string;
+  key: string;
+};
+
 export default class EVM {
   web3: any;
   account: any;
@@ -15,27 +24,35 @@ export default class EVM {
   MAX_PRIORITY_FEE: string;
   MAX_FEE: string;
   RECALIBRATE: number;
-  hasNonce: Map<string, number | undefined>;
-  pendingTxNonces: Set<unknown>;
   hasError: Map<string, string | undefined>;
-  nonce: number;
+  hasSuccess: Map<string, string | undefined>;
   balance: any;
   isFetched: boolean;
   isUpdating: boolean;
   recalibrate: boolean;
   waitingForRecalibration: boolean;
   waitArr: any[];
-  queue: any[];
+  batchBuffer: BatchBufferItem[];
+  isFlushing: boolean;
   error: boolean;
   log: Log;
   contracts: any;
+  private eip7702: EIP7702;
+  private flushBatchInterval: ReturnType<typeof setInterval> | null = null;
+  private readonly batchMaxSize: number;
 
   constructor(config: ChainType, PK: string | undefined) {
+    if (!config.accountImplementation) {
+      throw new Error(
+        `EVM ${config.NAME}: accountImplementation is required for EIP-7702 batch mode`,
+      );
+    }
     this.web3 = new Web3(config.RPC);
-    // Ensure private key has 0x prefix for web3
     const privateKey = PK?.startsWith("0x") ? PK : `0x${PK}`;
     this.account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
     this.contracts = new Map();
+    this.eip7702 = new EIP7702(config, privateKey ?? "");
+    this.batchMaxSize = config.eip7702BatchMaxSize ?? 1000;
 
     this.NAME = config.NAME;
     this.DECIMALS = config.DECIMALS || 18;
@@ -53,25 +70,30 @@ export default class EVM {
 
     this.log = new Log(this.NAME);
 
-    this.hasNonce = new Map();
     this.hasError = new Map();
-    this.pendingTxNonces = new Set();
-
-    this.nonce = -1;
+    this.hasSuccess = new Map();
     this.balance = new BN(0);
+    this.batchBuffer = [];
+    this.isFlushing = false;
 
     this.isFetched = false;
     this.isUpdating = false;
     this.recalibrate = false;
     this.waitingForRecalibration = false;
-
     this.waitArr = [];
-    this.queue = [];
-
     this.error = false;
 
     this.setupTransactionType();
     this.recalibrateNonceAndBalance();
+    this.eip7702
+      .ensureAuthorization()
+      .catch((err: any) =>
+        this.log.error(`EIP7702 ensureAuthorization: ${err?.message ?? err}`),
+      );
+
+    this.flushBatchInterval = setInterval(() => {
+      this.flushBatch();
+    }, 1000);
 
     setInterval(() => {
       this.recalibrateNonceAndBalance();
@@ -144,45 +166,50 @@ export default class EVM {
 
     this.processRequest({ receiver, amount, id });
 
-    // After transaction is being processed, the nonce will be available and txHash can be returned to user
-    const waitingForNonce = setInterval(async () => {
-      if (this.hasNonce.get(receiver + id) !== undefined) {
-        clearInterval(waitingForNonce);
+    // After transaction is being processed, wait for success or error
+    const key = receiver + (id || "");
+    const TIMEOUT_MS = 60_000; // 60s
 
-        const nonce: number | undefined = this.hasNonce.get(receiver + id);
-        this.hasNonce.set(receiver + id, undefined);
+    const waitingForResult = setInterval(() => {
+      // Check for error first
+      if (this.hasError.get(key) !== undefined) {
+        clearTimeout(timeoutId);
+        clearInterval(waitingForResult);
 
-        const { txHash } = await this.getTransaction(
-          receiver,
-          amount,
-          nonce,
-          id,
-        );
-
-        if (txHash) {
-          cb({
-            status: 200,
-            message: `Transaction successful on ${this.NAME}!`,
-            txHash,
-          });
-        } else {
-          cb({
-            status: 400,
-            message: `Transaction failed on ${this.NAME}! Please try again.`,
-          });
-        }
-      } else if (this.hasError.get(receiver) !== undefined) {
-        clearInterval(waitingForNonce);
-
-        const errorMessage = this.hasError.get(receiver)!;
-        this.hasError.set(receiver, undefined);
+        const errorMessage = this.hasError.get(key)!;
+        this.hasError.set(key, undefined);
 
         cb({
           status: 400,
           message: errorMessage,
         });
+        return;
+      }
+
+      // Check for success
+      if (this.hasSuccess.get(key) !== undefined) {
+        clearTimeout(timeoutId);
+        clearInterval(waitingForResult);
+
+        const txHash = this.hasSuccess.get(key)!;
+        this.hasSuccess.set(key, undefined);
+
+        cb({
+          status: 200,
+          message: `Transaction successful on ${this.NAME}!`,
+          txHash,
+        });
+        return;
       }
     }, 300);
+
+    const timeoutId = setTimeout(() => {
+      clearInterval(waitingForResult);
+      cb({
+        status: 408,
+        message: `Request timed out. No response from ${this.NAME} within ${TIMEOUT_MS / 1000}s.`,
+      });
+    }, TIMEOUT_MS);
   }
 
   async processRequest(req: RequestType): Promise<void> {
@@ -219,14 +246,10 @@ export default class EVM {
   async updateNonceAndBalance(): Promise<void> {
     this.isUpdating = true;
     try {
-      [this.nonce, this.balance] = await Promise.all([
-        this.web3.eth.getTransactionCount(this.account.address, "latest"),
-        this.web3.eth.getBalance(this.account.address),
-      ]);
-
+      this.balance = new BN(
+        await this.web3.eth.getBalance(this.account.address),
+      );
       await this.fetchERC20Balance();
-
-      this.balance = new BN(this.balance);
 
       this.error && this.log.info("RPC server recovered!");
       this.error = false;
@@ -264,128 +287,92 @@ export default class EVM {
   }
 
   async putInQueue(req: RequestType): Promise<void> {
+    const key = req.receiver + (req.id ?? "");
     if (this.balanceCheck(req)) {
-      this.queue.push({ ...req, nonce: this.nonce });
-      this.hasNonce.set(req.receiver + req.id, this.nonce);
-      this.nonce++;
-      this.executeQueue();
+      this.batchBuffer.push({
+        receiver: req.receiver,
+        amount: req.amount,
+        id: req.id,
+        key,
+      });
     } else {
       this.log.warn(`Faucet balance too low!${this.balance}`);
       this.hasError.set(
-        req.receiver,
+        key,
         "Faucet balance too low! Please try after sometime.",
       );
     }
   }
 
-  async executeQueue(): Promise<void> {
-    const { amount, receiver, nonce, id } = this.queue.shift();
-    this.sendTokenUtil(amount, receiver, nonce, id);
-  }
-
-  async sendTokenUtil(
-    amount: number,
-    receiver: string,
-    nonce: number,
-    id?: string,
-  ): Promise<void> {
-    this.pendingTxNonces.add(nonce);
-    const { rawTransaction } = await this.getTransaction(
-      receiver,
-      amount,
-      nonce,
-      id,
-    );
-
+  async flushBatch(): Promise<void> {
+    if (
+      !this.eip7702.hasAuthorization() ||
+      this.batchBuffer.length === 0 ||
+      this.isFlushing
+    ) {
+      return;
+    }
+    this.isFlushing = true;
+    const take = Math.min(this.batchBuffer.length, this.batchMaxSize);
+    const batch = this.batchBuffer.splice(0, take);
+    const calls = batch.map((item) => {
+      if (!item.id || !this.contracts.get(item.id)) {
+        const value =
+          typeof item.amount === "number"
+            ? BigInt(item.amount)
+            : BigInt((item.amount as BN).toString());
+        return {
+          target: item.receiver,
+          value,
+          data: "0x" as `0x${string}`,
+        };
+      }
+      const contract = this.contracts.get(item.id);
+      const data = contract.methods
+        .transfer(item.receiver, item.amount)
+        .encodeABI() as `0x${string}`;
+      return {
+        target: contract.config.CONTRACTADDRESS as string,
+        value: BigInt(0),
+        data,
+      };
+    });
     try {
-      const timeout = setTimeout(() => {
-        this.log.error(`Timeout reached for transaction with nonce ${nonce}`);
-        this.pendingTxNonces.delete(nonce);
-      }, 10 * 1000);
-
-      await this.web3.eth.sendSignedTransaction(rawTransaction);
-      this.pendingTxNonces.delete(nonce);
-
-      clearTimeout(timeout);
+      this.log.info(`Sent batch of ${batch.length} txs,`);
+      const txHash = await this.eip7702.sendBatchWithAuth(calls);
+      this.log.info(`txHash: ${txHash}`);
+      for (const item of batch) {
+        this.hasSuccess.set(item.key, txHash);
+      }
     } catch (err: any) {
-      this.pendingTxNonces.delete(nonce);
-      this.log.error(err.message);
-    }
-  }
-
-  async getTransaction(
-    to: string,
-    value: BN | number,
-    nonce: number | undefined,
-    id?: string,
-  ): Promise<any> {
-    const tx: any = {
-      type: 2,
-      gas: "21000",
-      nonce,
-      to,
-      maxPriorityFeePerGas: this.MAX_PRIORITY_FEE,
-      maxFeePerGas: this.MAX_FEE,
-      value,
-    };
-
-    if (this.LEGACY) {
-      delete tx.maxPriorityFeePerGas;
-      delete tx.maxFeePerGas;
-      tx.gasPrice = await this.getAdjustedGasPrice();
-      tx.type = 0;
-    }
-
-    if (this.contracts.get(id)) {
-      const txObject = this.contracts.get(id)?.methods.transfer(to, value);
-      tx.data = txObject.encodeABI();
-      tx.value = 0;
-      tx.to = this.contracts.get(id)?.config.CONTRACTADDRESS;
-      tx.gas = this.contracts.get(id)?.config.GASLIMIT;
-    }
-
-    let signedTx;
-    try {
-      signedTx = await this.account.signTransaction(tx);
-    } catch (err: any) {
-      this.error = true;
-      this.log.error(err.message);
-    }
-    const txHash = signedTx?.transactionHash;
-    const rawTransaction = signedTx?.rawTransaction;
-
-    return { txHash, rawTransaction };
-  }
-
-  async getGasPrice(): Promise<number> {
-    return this.web3.eth.getGasPrice();
-  }
-
-  async getAdjustedGasPrice(): Promise<number> {
-    try {
-      const gasPrice: number = await this.getGasPrice();
-      const adjustedGas: number = Math.floor(gasPrice * 1.25);
-      return Math.min(adjustedGas, parseInt(this.MAX_FEE, 10));
-    } catch (err: any) {
-      this.error = true;
-      this.log.error(err.message);
-      return 0;
+      const raw = err?.message ?? String(err);
+      const firstLine = raw.split(/\n/)[0]?.trim() ?? raw;
+      const shortMessage =
+        firstLine.length > 280 ? `${firstLine.slice(0, 280)}…` : firstLine;
+      this.log.error(`flushBatch (batch=${batch.length}): ${shortMessage}`);
+      const userMessage =
+        firstLine.length > 200 ? `${firstLine.slice(0, 200)}…` : firstLine;
+      for (const item of batch) {
+        this.hasError.set(
+          item.key,
+          `Transaction failed on ${this.NAME}: ${userMessage}. Please try again.`,
+        );
+      }
+    } finally {
+      this.isFlushing = false;
     }
   }
 
   async recalibrateNonceAndBalance(): Promise<void> {
     this.waitingForRecalibration = true;
 
-    if (this.pendingTxNonces.size === 0 && this.isUpdating === false) {
+    if (!this.isFlushing && !this.isUpdating) {
       this.isFetched = false;
-      this.recalibrate = true;
       this.waitingForRecalibration = false;
-      this.pendingTxNonces.clear();
-
       this.updateNonceAndBalance();
     } else {
       const recalibrateNow = setInterval(() => {
-        if (this.pendingTxNonces.size === 0 && this.isUpdating === false) {
+        if (!this.isFlushing && !this.isUpdating) {
           clearInterval(recalibrateNow);
           this.waitingForRecalibration = false;
           this.recalibrateNonceAndBalance();

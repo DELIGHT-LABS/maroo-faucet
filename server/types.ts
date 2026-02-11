@@ -1,4 +1,5 @@
 import type EVM from "./vms/evm";
+import type { ChainType } from "./vms/evmTypes";
 
 export type SendTokenResponse = {
   status: number;
@@ -23,24 +24,7 @@ export type EVMInstanceAndConfig = {
   instance: EVM;
 };
 
-export type ChainType = {
-  ID: string;
-  NAME: string;
-  TOKEN: string;
-  RPC: string;
-  CHAINID: number;
-  EXPLORER: string;
-  IMAGE: string;
-  DECIMALS?: number;
-  MAX_PRIORITY_FEE: string;
-  MAX_FEE: string;
-  DRIP_AMOUNT: number;
-  RECALIBRATE?: number;
-  RATELIMIT: {
-    WINDOW_SIZE: number;
-    MAX_LIMIT: number;
-  };
-};
+export type { ChainType };
 
 export type ERC20Type = {
   ID: string;

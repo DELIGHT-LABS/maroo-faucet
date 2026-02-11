@@ -18,15 +18,16 @@
       "CHAINID": 450815,
       "EXPLORER": "https://api.maroo-pretestnet.delightlabs.sh",
       "IMAGE": "",
-      "MAX_PRIORITY_FEE": "1",
-      "MAX_FEE": "1000000000000000000",
+      "MAX_PRIORITY_FEE": "0",
+      "MAX_FEE": "10000000000000000000",
       "DRIP_AMOUNT": 100000,
-      "MAX_BALANCE": 100000,
+      "MAX_BALANCE": 100000000,
       "DECIMALS": 18,
       "RATELIMIT": {
         "MAX_LIMIT": 5,
         "WINDOW_SIZE": 10
-      }
+      },
+      "accountImplementation": "0xe743A88Ed0aD76aC59AF641B38f9CD597f75519E"
     }
   ],
   "erc20tokens": []

@@ -14,6 +14,8 @@ export type ChainType = {
   DRIP_AMOUNT: number;
   MAX_BALANCE?: number;
   RECALIBRATE?: number;
+  accountImplementation: string;
+  eip7702BatchMaxSize?: number;
   RATELIMIT: {
     WINDOW_SIZE: number;
     MAX_LIMIT: number;
