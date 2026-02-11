@@ -167,11 +167,13 @@ export default class EVM {
     this.processRequest({ receiver, amount, id });
 
     // After transaction is being processed, wait for success or error
-    const waitingForResult = setInterval(async () => {
-      const key = receiver + (id || "");
+    const key = receiver + (id || "");
+    const TIMEOUT_MS = 60_000; // 60s
 
+    const waitingForResult = setInterval(() => {
       // Check for error first
       if (this.hasError.get(key) !== undefined) {
+        clearTimeout(timeoutId);
         clearInterval(waitingForResult);
 
         const errorMessage = this.hasError.get(key)!;
@@ -186,6 +188,7 @@ export default class EVM {
 
       // Check for success
       if (this.hasSuccess.get(key) !== undefined) {
+        clearTimeout(timeoutId);
         clearInterval(waitingForResult);
 
         const txHash = this.hasSuccess.get(key)!;
@@ -199,6 +202,14 @@ export default class EVM {
         return;
       }
     }, 300);
+
+    const timeoutId = setTimeout(() => {
+      clearInterval(waitingForResult);
+      cb({
+        status: 408,
+        message: `Request timed out. No response from ${this.NAME} within ${TIMEOUT_MS / 1000}s.`,
+      });
+    }, TIMEOUT_MS);
   }
 
   async processRequest(req: RequestType): Promise<void> {
