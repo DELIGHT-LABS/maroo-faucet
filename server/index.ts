@@ -1,8 +1,8 @@
+import BN from "bn.js";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { BN } from "luxfi";
 import config from "./config.json";
 import { parseURI, RateLimiter, VerifyCaptcha } from "./middlewares";
 import type {

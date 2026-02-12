@@ -1,4 +1,4 @@
-import { BN } from "luxfi";
+import BN from "bn.js";
 import Web3 from "web3";
 import ERC20Interface from "./ERC20Interface.json";
 import EIP7702 from "./eip7702";
