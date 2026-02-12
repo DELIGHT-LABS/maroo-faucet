@@ -1,15 +1,19 @@
 import { useMutation } from "@tanstack/react-query";
 
+import { kycApi } from "~/shared/api/kyc-api";
+
 import { AlreadyVerifiedError, VerificationError } from "./error";
 
 export const useCompleteVerify = () =>
   useMutation({
     mutationFn: async () => {
-      // TODO: replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const { data, status, ok } = await kycApi.api.kycControllerVerify();
 
-      // TODO: parse 409 error from API response
-      if (Math.random() < 0.7) {
+      if (ok) {
+        return data;
+      }
+
+      if (status === 409) {
         throw new AlreadyVerifiedError(
           "Verification failed. You have already verified your identity with a different wallet.",
         );

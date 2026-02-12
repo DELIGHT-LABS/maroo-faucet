@@ -200,11 +200,82 @@
         "summary": "Logout",
         "tags": ["Auth"]
       }
+    },
+    "/api/v1/kyc/request": {
+      "post": {
+        "operationId": "KycController_request",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KycRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "KYC request created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "KYC already in progress or completed"
+          },
+          "502": {
+            "description": "External service error"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Request KYC identity verification",
+        "tags": ["KYC"]
+      }
+    },
+    "/api/v1/kyc/verify": {
+      "post": {
+        "operationId": "KycController_verify",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KycVerifyResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or verification failed"
+          },
+          "409": {
+            "description": "Verification not completed or KYC already completed"
+          },
+          "502": {
+            "description": "External service error"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Verify KYC and create attestation",
+        "tags": ["KYC"]
+      }
     }
   },
   "info": {
     "title": "KYC Attestation",
-    "version": "0.1.1-dev.b346388"
+    "version": "0.2.1-dev.2ef1841"
   },
   "components": {
     "schemas": {
@@ -328,6 +399,66 @@
           }
         },
         "required": ["success"]
+      },
+      "KycRequestBody": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "01012345678",
+            "description": "Phone number without hyphens (11 digits)"
+          },
+          "name": {
+            "type": "string",
+            "example": "홍길동",
+            "description": "Real name"
+          },
+          "birthdate": {
+            "type": "string",
+            "example": "19900115",
+            "description": "Birthdate in yyyyMMdd format"
+          }
+        },
+        "required": ["phone", "name", "birthdate"]
+      },
+      "KycVerifyResponse": {
+        "type": "object",
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "example": true
+          },
+          "attestationUid": {
+            "type": "string",
+            "example": "0x1234567890abcdef...",
+            "description": "EAS attestation UID"
+          },
+          "txHash": {
+            "type": "string",
+            "example": "0xabcdef1234567890...",
+            "description": "Transaction hash"
+          },
+          "address": {
+            "type": "string",
+            "example": "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B"
+          },
+          "issuedAt": {
+            "type": "string",
+            "example": "2026-02-03T12:03:00Z"
+          },
+          "expiresAt": {
+            "type": "string",
+            "example": "2027-02-03T12:03:00Z"
+          }
+        },
+        "required": [
+          "verified",
+          "attestationUid",
+          "txHash",
+          "address",
+          "issuedAt",
+          "expiresAt"
+        ]
       }
     }
   }
