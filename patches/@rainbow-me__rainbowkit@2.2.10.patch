@@ -1,0 +1,26 @@
+diff --git a/dist/components/RainbowKitProvider/AuthenticationContext.d.ts b/dist/components/RainbowKitProvider/AuthenticationContext.d.ts
+index 36c6545e0f738e75447c01e247519756f953e50d..d6dba8208b02870e334be535e21e14a252153409 100644
+--- a/dist/components/RainbowKitProvider/AuthenticationContext.d.ts
++++ b/dist/components/RainbowKitProvider/AuthenticationContext.d.ts
+@@ -7,7 +7,7 @@ export interface AuthenticationAdapter<Message> {
+         nonce: string;
+         address: Address;
+         chainId: number;
+-    }) => Message;
++    }) => Message | Promise<Message>;
+     verify: (args: {
+         message: Message;
+         signature: string;
+diff --git a/dist/index.js b/dist/index.js
+index 51df031744cf6bc40996f5c17abdde84a90244f1..6d2b5b629ebf5d9a8127e459da9e6cb47642d02c 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -2366,7 +2366,7 @@ function SignIn({
+         errorMessage: void 0,
+         status: "signing"
+       }));
+-      const message = authAdapter.createMessage({ address, chainId, nonce });
++      const message = await authAdapter.createMessage({ address, chainId, nonce });
+       let signature;
+       try {
+         signature = await signMessageAsync({

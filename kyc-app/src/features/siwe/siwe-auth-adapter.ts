@@ -1,16 +1,7 @@
 import { createAuthenticationAdapter } from "@rainbow-me/rainbowkit";
-import { createSiweMessage } from "viem/siwe";
 
+import { kycApi } from "~/shared/api/kyc-api";
 import { authActions } from "./auth-store";
-
-// TODO: separate api logics
-// const endPoints = {
-//   nonce: "TODO: replace with your nonce endpoint",
-//   verify: "TODO: replace with your verify endpoint",
-//   logout: "TODO: replace with your logout endpoint",
-// } as const;
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const siweAuthAdapter = createAuthenticationAdapter({
   getNonce: async () => {
@@ -19,36 +10,33 @@ export const siweAuthAdapter = createAuthenticationAdapter({
     // longer than 8, alphanumeric to pass viem validation
     return "alphanumeric";
   },
-  createMessage: ({ nonce, address, chainId }) => {
-    // TODO: this should be done on the server side
-    return createSiweMessage({
-      domain: window.location.host,
-      address,
-      statement: "Sign in with Ethereum to the app.",
-      uri: window.location.origin,
-      version: "1",
-      chainId,
-      nonce,
-    });
+  createMessage: async ({ address }) => {
+    const { data } = await kycApi.api.authControllerMessage({ address });
+
+    return data.message;
   },
-  verify: async () => {
-    await delay(500); // simulate network delay
-    authActions.login();
-    return true;
-    // const verifyRes = await fetch(endPoints.verify, {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ message, signature }),
-    // });
-    // if (verifyRes.ok) {
-    //   authActions.login();
-    //   return true;
-    // }
-    // return false;
+  verify: async ({ message, signature }) => {
+    const { data, ok } = await kycApi.api.authControllerSignIn({
+      message,
+      signature,
+    });
+
+    // TODO: handle error
+    if (ok) {
+      authActions.login();
+
+      if (data.verified) {
+        // TODO: update verified status in the store
+        // decide when to refresh the status
+      }
+
+      return true;
+    }
+
+    return false;
   },
   signOut: async () => {
-    await delay(500); // simulate network delay
     authActions.logout();
-    // await fetch(endPoints.logout);
+    await kycApi.api.authControllerLogout();
   },
 });
