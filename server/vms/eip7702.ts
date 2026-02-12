@@ -1,8 +1,3 @@
-/**
- * EIP-7702 배치 전송: authorization 1개 상시 보유, sendBatchWithAuth로 type-4 tx 전송.
- * 배치 전송 후 다음 배치용 authorization을 다시 확보.
- */
-
 import {
   createPublicClient,
   createWalletClient,
@@ -52,9 +47,6 @@ export default class EIP7702 {
   private readonly walletClient: ReturnType<typeof createWalletClient>;
   private readonly account: ReturnType<typeof privateKeyToAccount>;
   private readonly contractAddress: `0x${string}`;
-  private nextAuthorization: Awaited<
-    ReturnType<ReturnType<typeof createWalletClient>["signAuthorization"]>
-  > | null = null;
   private nextNonce: number | null = null;
 
   constructor(config: ChainType, privateKey: string) {
@@ -83,11 +75,18 @@ export default class EIP7702 {
   }
 
   hasAuthorization(): boolean {
-    return this.nextAuthorization != null;
+    return this.nextNonce != null;
   }
 
   async ensureAuthorization(): Promise<void> {
-    if (this.nextAuthorization != null) return;
+    if (this.nextNonce != null) return;
+    this.nextNonce = await this.publicClient.getTransactionCount({
+      address: this.account.address,
+      blockTag: "pending",
+    });
+  }
+
+  async sendBatchWithAuth(calls: BatchCall[]): Promise<Hash> {
     const nonce =
       this.nextNonce ??
       (await this.publicClient.getTransactionCount({
@@ -95,22 +94,13 @@ export default class EIP7702 {
         blockTag: "pending",
       }));
     this.nextNonce = nonce + 1;
-    this.nextAuthorization = await this.walletClient.signAuthorization({
+
+    const auth = await (this.walletClient as any).signAuthorization({
       account: this.account,
       contractAddress: this.contractAddress,
       executor: "self",
       nonce,
     });
-  }
-
-  async sendBatchWithAuth(calls: BatchCall[]): Promise<Hash> {
-    if (this.nextAuthorization == null) {
-      throw new Error(
-        "EIP7702: no authorization; call ensureAuthorization() first",
-      );
-    }
-    const auth = this.nextAuthorization;
-    this.nextAuthorization = null;
 
     const data = encodeFunctionData({
       abi: accountAbi,
@@ -124,20 +114,15 @@ export default class EIP7702 {
       ],
     });
 
-    try {
-      const hash = await this.walletClient.sendTransaction({
-        account: this.account,
-        chain: this.chain,
-        authorizationList: [auth],
-        data,
-        to: this.account.address,
-      });
-      await this.ensureAuthorization();
-      return hash;
-    } catch (e) {
-      await this.ensureAuthorization();
-      throw e;
-    }
+    const hash = await this.walletClient.sendTransaction({
+      account: this.account,
+      chain: this.chain,
+      authorizationList: [auth as any],
+      data,
+      to: this.account.address,
+      nonce,
+    });
+    return hash;
   }
 
   getAddress(): `0x${string}` {

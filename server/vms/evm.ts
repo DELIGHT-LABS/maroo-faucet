@@ -38,6 +38,7 @@ export default class EVM {
   log: Log;
   contracts: any;
   private eip7702: EIP7702;
+  private eip7702Ready: Promise<void>;
   private flushBatchInterval: ReturnType<typeof setInterval> | null = null;
   private readonly batchMaxSize: number;
 
@@ -85,11 +86,11 @@ export default class EVM {
 
     this.setupTransactionType();
     this.recalibrateNonceAndBalance();
-    this.eip7702
-      .ensureAuthorization()
-      .catch((err: any) =>
-        this.log.error(`EIP7702 ensureAuthorization: ${err?.message ?? err}`),
+    this.eip7702Ready = this.eip7702.ensureAuthorization().catch((err: any) => {
+      this.log.error(
+        `EIP7702 ensureAuthorization: ${err?.message ?? err}`,
       );
+    });
 
     this.flushBatchInterval = setInterval(() => {
       this.flushBatch();
@@ -305,6 +306,7 @@ export default class EVM {
   }
 
   async flushBatch(): Promise<void> {
+    await this.eip7702Ready;
     if (
       !this.eip7702.hasAuthorization() ||
       this.batchBuffer.length === 0 ||
