@@ -99,6 +99,14 @@ export const marooPreset = definePreset({
               fontStyle: "normal",
             },
           },
+          medium: {
+            value: {
+              fontSize: "14px",
+              fontWeight: "500",
+              lineHeight: "20px",
+              fontStyle: "normal",
+            },
+          },
         },
         button: {
           m: {

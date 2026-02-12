@@ -69,8 +69,7 @@ export default async function HomePage() {
           • Unavailable if holding {formatNumber(data.maroo.MAX_BALANCE)}{" "}
           {data.maroo.TOKEN}
         </li>
-        {/* TODO: add body2.medium once common/ui landed */}
-        <li className={css({ fontWeight: 500 })}>
+        <li className={css({ textStyle: "body2.medium" })}>
           • Test tokens have no real value
         </li>
       </ul>
