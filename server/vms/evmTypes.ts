@@ -1,4 +1,4 @@
-import type { BN } from "luxfi";
+import type BN from "bn.js";
 import type { Address } from "viem";
 
 export type ChainType = {
