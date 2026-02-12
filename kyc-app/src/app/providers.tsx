@@ -11,12 +11,12 @@ import { useState } from "react";
 import { WagmiProvider } from "wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
 
-import { authStatusAtom, authStore } from "~/features/siwe/auth-store";
+import { authStateAtom, authStore } from "~/features/siwe/auth-store";
 import { siweAuthAdapter } from "~/features/siwe/siwe-auth-adapter";
 import { config } from "~/shared/lib/wagmi";
 
 function RainbowKitWithAuth({ children }: { children: React.ReactNode }) {
-  const status = useAtomValue(authStatusAtom);
+  const { status } = useAtomValue(authStateAtom);
 
   return (
     <RainbowKitAuthenticationProvider adapter={siweAuthAdapter} status={status}>
