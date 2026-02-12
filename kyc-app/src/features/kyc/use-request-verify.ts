@@ -20,7 +20,11 @@ export function useRequestVerify() {
   const { mutate, error } = useMutation({
     mutationFn: async (data: KycFormValues) => {
       await Promise.all([
-        await kycApi.api.kycControllerRequest(data),
+        await kycApi.api.kycControllerRequest({
+          name: data.name,
+          phone: data.phone,
+          birthdate: data.birthdate,
+        }),
         new Promise((resolve) => setTimeout(resolve, SENDING_MIN_MS)),
       ]);
     },
