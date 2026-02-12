@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { BN } from "luxfi";
+import type { Address } from "viem";
 import config from "./config.json";
 import { parseURI, RateLimiter, VerifyCaptcha } from "./middlewares";
 import type {
@@ -193,7 +194,7 @@ router.post(
   "/sendToken",
   ...(process.env.NODE_ENV === "production" ? [captcha.middleware] : []),
   async (req: any, res: any) => {
-    const address: string = req.body?.address;
+    const address: Address = req.body?.address;
     const chain: string = req.body?.chain;
     const erc20: string | undefined = req.body?.erc20;
 

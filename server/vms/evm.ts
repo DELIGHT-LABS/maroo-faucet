@@ -1,4 +1,5 @@
 import { BN } from "luxfi";
+import type { Address } from "viem";
 import Web3 from "web3";
 import ERC20Interface from "./ERC20Interface.json";
 import EIP7702 from "./eip7702";
@@ -7,7 +8,7 @@ import Log from "./Log";
 import { calculateBaseUnit } from "./utils";
 
 type BatchBufferItem = {
-  receiver: string;
+  receiver: Address;
   amount: BN | number;
   id?: string;
   key: string;
@@ -115,7 +116,7 @@ export default class EVM {
 
   // Function to issue transfer transaction. For ERC20 transfers, 'id' will be a string representing ERC20 token ID
   async sendToken(
-    receiver: string,
+    receiver: Address,
     id: string | undefined,
     cb: (param: SendTokenResponse) => void,
   ): Promise<void> {
@@ -332,7 +333,7 @@ export default class EVM {
         .transfer(item.receiver, item.amount)
         .encodeABI() as `0x${string}`;
       return {
-        target: contract.config.CONTRACTADDRESS as string,
+        target: contract.config.CONTRACTADDRESS as Address,
         value: BigInt(0),
         data,
       };

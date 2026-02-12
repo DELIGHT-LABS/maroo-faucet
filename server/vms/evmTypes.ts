@@ -1,4 +1,5 @@
 import type { BN } from "luxfi";
+import type { Address } from "viem";
 
 export type ChainType = {
   ID: string;
@@ -28,7 +29,7 @@ export type SendTokenResponse = {
 };
 
 export type RequestType = {
-  receiver: string;
+  receiver: Address;
   amount: BN | number;
   id?: string;
 };

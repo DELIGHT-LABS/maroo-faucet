@@ -1,4 +1,5 @@
 import {
+  type Address,
   createPublicClient,
   createWalletClient,
   type Hash,
@@ -30,7 +31,7 @@ const accountAbi = [
 ] as const;
 
 export type BatchCall = {
-  target: `0x${string}`;
+  target: Address;
   value: bigint;
   data: Hex;
 };
