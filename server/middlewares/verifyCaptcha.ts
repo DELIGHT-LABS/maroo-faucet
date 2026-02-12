@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { Express } from "express";
 
 export class VerifyCaptcha {
   secret: string;
@@ -6,7 +7,11 @@ export class VerifyCaptcha {
   middleware = (req: any, res: any, next: () => void) =>
     this.verifyCaptcha(req, res, next);
 
-  constructor(_app: any, CAPTCHA_SECRET: string, V2_CAPTCHA_SECRET?: string) {
+  constructor(
+    _app: Express,
+    CAPTCHA_SECRET: string,
+    V2_CAPTCHA_SECRET?: string,
+  ) {
     if (typeof CAPTCHA_SECRET !== "string") {
       throw "Captcha Secret should be string";
     }
