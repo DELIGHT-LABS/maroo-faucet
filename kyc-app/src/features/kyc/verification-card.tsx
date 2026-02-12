@@ -61,7 +61,7 @@ const RequestStep = () => {
                   color: "gray.500",
                 })}
               >
-                You can only verify one wallet per person.
+                ⓘ You can only verify one wallet per person.
               </p>
             </>
           )}
