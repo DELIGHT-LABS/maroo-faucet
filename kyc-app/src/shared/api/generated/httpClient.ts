@@ -93,6 +93,45 @@ export interface LogoutResponse {
   success: boolean;
 }
 
+export interface KycRequestBody {
+  /**
+   * Phone number without hyphens (11 digits)
+   * @example "01012345678"
+   */
+  phone: string;
+  /**
+   * Real name
+   * @example "홍길동"
+   */
+  name: string;
+  /**
+   * Birthdate in yyyyMMdd format
+   * @example "19900115"
+   */
+  birthdate: string;
+}
+
+export interface KycVerifyResponse {
+  /** @example true */
+  verified: boolean;
+  /**
+   * EAS attestation UID
+   * @example "0x1234567890abcdef..."
+   */
+  attestationUid: string;
+  /**
+   * Transaction hash
+   * @example "0xabcdef1234567890..."
+   */
+  txHash: string;
+  /** @example "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B" */
+  address: string;
+  /** @example "2026-02-03T12:03:00Z" */
+  issuedAt: string;
+  /** @example "2027-02-03T12:03:00Z" */
+  expiresAt: string;
+}
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -350,7 +389,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
 /**
  * @title KYC Attestation
- * @version 0.1.1-dev.b346388
+ * @version 0.2.1-dev.2ef1841
  */
 export class Api<
   SecurityDataType extends unknown,
@@ -474,6 +513,43 @@ export class Api<
     authControllerLogout: (params: RequestParams = {}) =>
       this.request<LogoutResponse, void>({
         path: `/api/v1/auth/logout`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags KYC
+     * @name KycControllerRequest
+     * @summary Request KYC identity verification
+     * @request POST:/api/v1/kyc/request
+     * @secure
+     */
+    kycControllerRequest: (data: KycRequestBody, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/kyc/request`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags KYC
+     * @name KycControllerVerify
+     * @summary Verify KYC and create attestation
+     * @request POST:/api/v1/kyc/verify
+     * @secure
+     */
+    kycControllerVerify: (params: RequestParams = {}) =>
+      this.request<KycVerifyResponse, void>({
+        path: `/api/v1/kyc/verify`,
         method: "POST",
         secure: true,
         format: "json",
