@@ -8,7 +8,7 @@ export const useCompleteVerify = () =>
       // TODO: replace with actual API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // TODO: parse actual error from API response
+      // TODO: parse 409 error from API response
       if (Math.random() < 0.7) {
         throw new AlreadyVerifiedError(
           "Verification failed. You have already verified your identity with a different wallet.",
