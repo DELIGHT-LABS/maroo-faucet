@@ -1,7 +1,6 @@
 import {
   createPublicClient,
   createWalletClient,
-  encodeFunctionData,
   type Hash,
   type Hex,
   http,
@@ -31,7 +30,7 @@ const accountAbi = [
 ] as const;
 
 export type BatchCall = {
-  target: string;
+  target: `0x${string}`;
   value: bigint;
   data: Hex;
 };
@@ -95,32 +94,21 @@ export default class EIP7702 {
       }));
     this.nextNonce = nonce + 1;
 
-    const auth = await (this.walletClient as any).signAuthorization({
+    const auth = await this.walletClient.signAuthorization({
       account: this.account,
       contractAddress: this.contractAddress,
       executor: "self",
       nonce,
     });
 
-    const data = encodeFunctionData({
-      abi: accountAbi,
-      functionName: "executeBatch",
-      args: [
-        calls.map((c) => ({
-          target: c.target as `0x${string}`,
-          value: c.value,
-          data: c.data,
-        })),
-      ],
-    });
-
-    const hash = await this.walletClient.sendTransaction({
+    const hash = await this.walletClient.writeContract({
       account: this.account,
       chain: this.chain,
-      authorizationList: [auth as any],
-      data,
-      to: this.account.address,
-      nonce,
+      abi: accountAbi,
+      functionName: "executeBatch",
+      args: [calls],
+      address: this.account.address,
+      authorizationList: [auth],
     });
     return hash;
   }

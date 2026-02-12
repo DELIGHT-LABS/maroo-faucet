@@ -87,9 +87,7 @@ export default class EVM {
     this.setupTransactionType();
     this.recalibrateNonceAndBalance();
     this.eip7702Ready = this.eip7702.ensureAuthorization().catch((err: any) => {
-      this.log.error(
-        `EIP7702 ensureAuthorization: ${err?.message ?? err}`,
-      );
+      this.log.error(`EIP7702 ensureAuthorization: ${err?.message ?? err}`);
     });
 
     this.flushBatchInterval = setInterval(() => {
