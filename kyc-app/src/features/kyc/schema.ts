@@ -21,7 +21,7 @@ export const kycFormSchema = v.object({
     v.nonEmpty("Please enter your phone number."),
     v.regex(phoneDigits, "Enter a valid 10 or 11-digit phone number."),
   ),
-  birthDate: v.pipe(
+  birthdate: v.pipe(
     v.string(),
     v.nonEmpty("Please enter your date of birth."),
     v.regex(dateFormat, "Enter 8 digits in YYYYMMDD format."),

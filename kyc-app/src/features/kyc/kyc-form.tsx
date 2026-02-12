@@ -23,7 +23,7 @@ export const KycForm = ({ onSubmit }: Props) => {
     defaultValues: {
       name: "",
       phone: "",
-      birthDate: "",
+      birthdate: "",
       agreement: false,
     },
   });
@@ -63,13 +63,13 @@ export const KycForm = ({ onSubmit }: Props) => {
       <FormField
         label="Date of Birth"
         inputProps={{
-          ...register("birthDate"),
+          ...register("birthdate"),
           type: "text",
           inputMode: "numeric",
           placeholder: "19900101",
         }}
-        error={errors.birthDate?.message}
-        validated={touchedFields.birthDate && !errors.birthDate}
+        error={errors.birthdate?.message}
+        validated={touchedFields.birthdate && !errors.birthdate}
       />
 
       <FormCheck

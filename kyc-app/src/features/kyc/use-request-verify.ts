@@ -1,6 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { kycApi } from "~/shared/api/kyc-api";
+
 import type { KycFormValues } from "./schema";
 import { useStepper } from "./use-stepper";
 
@@ -17,9 +19,8 @@ export function useRequestVerify() {
 
   const { mutate, error } = useMutation({
     mutationFn: async (data: KycFormValues) => {
-      console.log("KYC verification:", data);
       await Promise.all([
-        new Promise((resolve) => setTimeout(resolve, 2000)), // TODO: replace with actual API call
+        await kycApi.api.kycControllerRequest(data),
         new Promise((resolve) => setTimeout(resolve, SENDING_MIN_MS)),
       ]);
     },
