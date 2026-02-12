@@ -24,9 +24,9 @@ const MOCK: ChainConfig = {
   TOKEN: "tOKRW",
   RPC: "https://api.maroo-pretestnet.delightlabs.sh",
   CHAINID: 450815,
-  EXPLORER: "https://www.maroo.io",
-  DRIP_AMOUNT: 100000,
-  MAX_BALANCE: 100000,
+  EXPLORER: "https://maroo-devnet-explorer.delightlabs.team",
+  DRIP_AMOUNT: 5000,
+  MAX_BALANCE: 10000,
   RATELIMIT: {
     MAX_LIMIT: 5,
     WINDOW_SIZE: 10,
@@ -34,10 +34,19 @@ const MOCK: ChainConfig = {
 };
 
 export async function getChainConfigs(): Promise<ChainConfig[]> {
-  // const response = await fetch(`${API_URL}/api/getChainConfigs`);
-  // const data = await response.json();
-  // return data.configs as ChainConfig[];
-  return [MOCK];
+  let configs = [MOCK];
+
+  try {
+    const response = await fetch(`${API_URL}/api/getChainConfigs`);
+    const data = (await response.json()) as { configs: ChainConfig[] };
+    configs = data.configs;
+  } catch {
+    console.log("Failed to fetch chain configs, using MOCK data instead.");
+    // it will fail silently and use MOCK data
+    // most likely due to ip whitelisting issue in netlify deploy
+  }
+
+  return configs;
 }
 
 export async function requestTokens(params: {
