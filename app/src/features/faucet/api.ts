@@ -1,5 +1,5 @@
 import { API_URL } from "~/shared/lib/env";
-
+import { formatNumber } from "~/shared/lib/format";
 import { BalanceError, RateLimitError, withMessage } from "./error";
 
 interface ChainConfig {
@@ -77,7 +77,8 @@ export async function requestTokens(params: {
     // TODO: improve error from server
     if (withMessage(errorData) && errorData.message.includes("balance")) {
       throw new BalanceError(
-        `You cannot request more tokens while holding ${MOCK.MAX_BALANCE} ${MOCK.TOKEN} or more.`,
+        // TODO: replace mock
+        `You cannot request more tokens while holding ${formatNumber(MOCK.MAX_BALANCE)} ${MOCK.TOKEN} or more.`,
       );
     }
 
