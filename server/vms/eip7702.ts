@@ -74,10 +74,6 @@ export default class EIP7702 {
     this.contractAddress = config.accountImplementation as `0x${string}`;
   }
 
-  hasAuthorization(): boolean {
-    return this.nextNonce != null;
-  }
-
   async ensureAuthorization(): Promise<void> {
     if (this.nextNonce != null) return;
     this.nextNonce = await this.publicClient.getTransactionCount({
@@ -86,32 +82,48 @@ export default class EIP7702 {
     });
   }
 
+  hasAuthorization(): boolean {
+    return this.nextNonce != null;
+  }
+
   async sendBatchWithAuth(calls: BatchCall[]): Promise<Hash> {
-    const nonce =
-      this.nextNonce ??
-      (await this.publicClient.getTransactionCount({
-        address: this.account.address,
-        blockTag: "pending",
-      }));
-    this.nextNonce = nonce + 1;
+    const txNonce = this.nextNonce!;
+    const authNonce = txNonce + 1;
+    // Reserve 2 nonces: one for the tx itself, one for the EIP-7702 authorization.
+    // When executor === "self", the tx nonce is consumed before the auth nonce is
+    // validated, so authNonce must be txNonce + 1.
+    this.nextNonce = txNonce + 2;
 
     const auth = await this.walletClient.signAuthorization({
       account: this.account,
       contractAddress: this.contractAddress,
       executor: "self",
-      nonce,
+      nonce: authNonce,
     });
 
-    const hash = await this.walletClient.writeContract({
-      account: this.account,
-      chain: this.chain,
-      abi: accountAbi,
-      functionName: "executeBatch",
-      args: [calls],
-      address: this.account.address,
-      authorizationList: [auth],
-    });
-    return hash;
+    try {
+      // Simulate first to catch revert reasons without consuming the nonce on-chain.
+      const { request } = await this.publicClient.simulateContract({
+        account: this.account,
+        chain: this.chain,
+        abi: accountAbi,
+        functionName: "executeBatch",
+        args: [calls],
+        address: this.account.address,
+        authorizationList: [auth],
+        nonce: txNonce,
+      });
+
+      const hash = await this.walletClient.writeContract(request);
+      return hash;
+    } catch (e) {
+      // On failure, resync nonce from the network to avoid permanent desync.
+      this.nextNonce = await this.publicClient.getTransactionCount({
+        address: this.account.address,
+        blockTag: "pending",
+      });
+      throw e;
+    }
   }
 
   getAddress(): `0x${string}` {
