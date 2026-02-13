@@ -6,7 +6,7 @@ export const marooTestnet = defineChain({
   nativeCurrency: { name: "Maroo", symbol: "tOKRW", decimals: 18 },
   rpcUrls: {
     default: {
-      http: ["https://api.maroo-pretestnet.delightlabs.sh"],
+      http: ["https://rpc-testnet.maroo.io"],
     },
   },
   blockExplorers: {
