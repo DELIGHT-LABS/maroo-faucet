@@ -22,6 +22,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       })}
     >
       <meta name="description" content={data.description} />
+      <meta property="og:title" content={data.title} />
+      <meta property="og:description" content={data.description} />
+      <meta property="og:image" content={data.ogImage} />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content={data.url} />
       <link rel="icon" type="image/png" href={data.icon} />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -56,8 +61,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 
 const getData = async () => {
   const data = {
+    title: "Maroo Testnet KYC",
     description: "Verify your real-world identity on-chain",
     icon: "/favicon.svg",
+    ogImage: "/og-image.png",
+    url: "https://kyc-testnet.maroo.io",
   };
 
   return data;

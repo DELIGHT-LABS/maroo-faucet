@@ -31,8 +31,8 @@ export const connectors = connectorsForWallets(
     // },
   ],
   {
-    appName: "Maroo Identity Verification",
+    appName: "Maroo Testnet KYC",
     projectId: WC_PROJECT_ID,
-    // appUrl: "http://localhost:3000", // TODO update this
+    appUrl: "https://kyc-testnet.maroo.io",
   },
 );
