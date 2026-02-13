@@ -74,10 +74,6 @@ export default class EIP7702 {
     this.contractAddress = config.accountImplementation as `0x${string}`;
   }
 
-  hasAuthorization(): boolean {
-    return this.nextNonce != null;
-  }
-
   async ensureAuthorization(): Promise<void> {
     if (this.nextNonce != null) return;
     this.nextNonce = await this.publicClient.getTransactionCount({
@@ -86,20 +82,20 @@ export default class EIP7702 {
     });
   }
 
+  hasAuthorization(): boolean {
+    return this.nextNonce != null;
+  }
+
   async sendBatchWithAuth(calls: BatchCall[]): Promise<Hash> {
-    const nonce =
-      this.nextNonce ??
-      (await this.publicClient.getTransactionCount({
-        address: this.account.address,
-        blockTag: "pending",
-      }));
-    this.nextNonce = nonce + 1;
+    const txNonce = this.nextNonce!;
+    const authNonce = txNonce + 1;
+    this.nextNonce = txNonce + 2; // tx nonce +1, auth nonce +1
 
     const auth = await this.walletClient.signAuthorization({
       account: this.account,
       contractAddress: this.contractAddress,
       executor: "self",
-      nonce,
+      nonce: authNonce,
     });
 
     const hash = await this.walletClient.writeContract({
@@ -110,7 +106,9 @@ export default class EIP7702 {
       args: [calls],
       address: this.account.address,
       authorizationList: [auth],
+      nonce: txNonce,
     });
+
     return hash;
   }
 
