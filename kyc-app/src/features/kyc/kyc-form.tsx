@@ -1,21 +1,24 @@
 "use client";
 
 import { valibotResolver } from "@hookform/resolvers/valibot";
+import { css } from "@maroo/styled-system/css";
 import { vstack } from "@maroo/styled-system/patterns";
-import { Button, FormCheck, FormField } from "@maroo/ui";
-import { useForm } from "react-hook-form";
 
+import { Button, ErrorCard, FormCheck, FormField } from "@maroo/ui";
+import IconSpinner from "@maroo/ui/assets/icon-spinner.svg?react";
+import { useForm } from "react-hook-form";
 import { formatPhone } from "./phone-number";
 import { type KycFormValues, kycFormSchema } from "./schema";
 
 interface Props {
-  onSubmit: (data: KycFormValues) => void;
+  onSubmit: (data: KycFormValues) => Promise<void>;
   initialValues?: Partial<KycFormValues> | null;
 }
 
 export const KycForm = ({ onSubmit, initialValues }: Props) => {
   const {
     register,
+    setError,
     handleSubmit,
     formState: { errors, isSubmitting, isValid, touchedFields },
   } = useForm({
@@ -32,7 +35,20 @@ export const KycForm = ({ onSubmit, initialValues }: Props) => {
   return (
     <form
       className={vstack({ alignItems: "flex-start", gap: "16px" })}
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(async (data) => {
+        try {
+          await onSubmit(data);
+        } catch (e) {
+          if (e instanceof Error) {
+            setError("root", { message: e.message });
+            return;
+          }
+
+          setError("root", {
+            message: "An unexpected error occurred. Please try again.",
+          });
+        }
+      })}
     >
       <FormField
         label="Name"
@@ -80,8 +96,25 @@ export const KycForm = ({ onSubmit, initialValues }: Props) => {
         }}
       />
 
-      <Button type="submit" disabled={!isValid || isSubmitting}>
-        {isSubmitting ? "Requesting..." : "Request Verification"}
+      {errors.root?.message && (
+        <div className={css({ w: "full" })}>
+          <ErrorCard message={errors.root.message} />
+        </div>
+      )}
+
+      <Button
+        type="submit"
+        disabled={!isValid || isSubmitting}
+        className={css({ gap: "4px" })}
+      >
+        {isSubmitting ? (
+          <>
+            Requesting...
+            <IconSpinner className={css({ animation: "spin" })} />
+          </>
+        ) : (
+          "Request Verification"
+        )}
       </Button>
     </form>
   );

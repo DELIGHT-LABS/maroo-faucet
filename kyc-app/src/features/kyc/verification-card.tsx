@@ -11,7 +11,6 @@ import { ConnectButton } from "../wallet/connect-button";
 import { KakaoButton } from "./kakao-button";
 import { KycForm } from "./kyc-form";
 import { LastVerification } from "./last-verification";
-import type { KycFormValues } from "./schema";
 import { useRequestVerify } from "./use-request-verify";
 
 const ConnectStep = () => (
@@ -29,7 +28,9 @@ const RequestStep = () => {
     "select-method",
   );
 
-  const { resendStep, send, resend, reset, formData } = useRequestVerify();
+  const { resendStep, send, resend, reset, formData } = useRequestVerify({
+    onSuccessRequest: () => setFlow("verify"),
+  });
 
   useEffect(() => {
     if (step === 1) {
@@ -37,11 +38,6 @@ const RequestStep = () => {
       reset();
     }
   }, [step]);
-
-  const handleFormSubmit = (data: KycFormValues) => {
-    send(data);
-    setFlow("verify");
-  };
 
   const handleRetry = () => {
     setFlow("request-form");
@@ -86,7 +82,7 @@ const RequestStep = () => {
         </>
       )}
       {flow === "request-form" && (
-        <KycForm onSubmit={handleFormSubmit} initialValues={formData} />
+        <KycForm onSubmit={send} initialValues={formData} />
       )}
       {flow === "verify" && (
         <LastVerification

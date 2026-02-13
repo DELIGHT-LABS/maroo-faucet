@@ -34,3 +34,10 @@ export class NotCompletedError extends Error {
     this.name = "NotCompletedError";
   }
 }
+
+export class RequestError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RequestError";
+  }
+}
