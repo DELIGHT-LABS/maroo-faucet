@@ -71,19 +71,18 @@ export const LastVerification = ({
             {isInitial && "Complete Verification"}
           </Button>
 
-          {isPending ||
-            (isSuccess && (
-              <p
-                className={css({
-                  textStyle: "caption.regular",
-                  color: "gray.500",
-                  mt: "8px",
-                })}
-              >
-                {isPending && "Recording on-chain, please wait..."}
-                {isSuccess && "You can now close this tab safely."}
-              </p>
-            ))}
+          {(isPending || isSuccess) && (
+            <p
+              className={css({
+                textStyle: "caption.regular",
+                color: "gray.500",
+                mt: "8px",
+              })}
+            >
+              {isPending && "Recording on-chain, please wait..."}
+              {isSuccess && "You can now close this tab safely."}
+            </p>
+          )}
         </div>
       )}
 
