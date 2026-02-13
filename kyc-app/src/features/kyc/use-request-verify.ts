@@ -41,9 +41,6 @@ export function useRequestVerify({
   });
 
   const send = async (data: KycFormValues) => {
-    if (formData) {
-      return;
-    }
     setResendStep("cooldown");
     await mutateAsync(data);
     setFormData(data);
