@@ -89,7 +89,10 @@ export default class EIP7702 {
   async sendBatchWithAuth(calls: BatchCall[]): Promise<Hash> {
     const txNonce = this.nextNonce!;
     const authNonce = txNonce + 1;
-    this.nextNonce = txNonce + 2; // tx nonce +1, auth nonce +1
+    // Reserve 2 nonces: one for the tx itself, one for the EIP-7702 authorization.
+    // When executor === "self", the tx nonce is consumed before the auth nonce is
+    // validated, so authNonce must be txNonce + 1.
+    this.nextNonce = txNonce + 2;
 
     const auth = await this.walletClient.signAuthorization({
       account: this.account,
@@ -98,18 +101,29 @@ export default class EIP7702 {
       nonce: authNonce,
     });
 
-    const hash = await this.walletClient.writeContract({
-      account: this.account,
-      chain: this.chain,
-      abi: accountAbi,
-      functionName: "executeBatch",
-      args: [calls],
-      address: this.account.address,
-      authorizationList: [auth],
-      nonce: txNonce,
-    });
+    try {
+      // Simulate first to catch revert reasons without consuming the nonce on-chain.
+      const { request } = await this.publicClient.simulateContract({
+        account: this.account,
+        chain: this.chain,
+        abi: accountAbi,
+        functionName: "executeBatch",
+        args: [calls],
+        address: this.account.address,
+        authorizationList: [auth],
+        nonce: txNonce,
+      });
 
-    return hash;
+      const hash = await this.walletClient.writeContract(request);
+      return hash;
+    } catch (e) {
+      // On failure, resync nonce from the network to avoid permanent desync.
+      this.nextNonce = await this.publicClient.getTransactionCount({
+        address: this.account.address,
+        blockTag: "pending",
+      });
+      throw e;
+    }
   }
 
   getAddress(): `0x${string}` {
