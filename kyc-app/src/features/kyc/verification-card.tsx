@@ -29,11 +29,12 @@ const RequestStep = () => {
     "select-method",
   );
 
-  const { resendStep, send, resend, reset } = useRequestVerify();
+  const { resendStep, send, resend, reset, formData } = useRequestVerify();
 
   useEffect(() => {
     if (step === 1) {
       setFlow("select-method");
+      reset();
     }
   }, [step]);
 
@@ -43,8 +44,7 @@ const RequestStep = () => {
   };
 
   const handleRetry = () => {
-    reset();
-    setFlow("select-method");
+    setFlow("request-form");
   };
 
   return (
@@ -85,7 +85,9 @@ const RequestStep = () => {
           )}
         </>
       )}
-      {flow === "request-form" && <KycForm onSubmit={handleFormSubmit} />}
+      {flow === "request-form" && (
+        <KycForm onSubmit={handleFormSubmit} initialValues={formData} />
+      )}
       {flow === "verify" && (
         <LastVerification
           onRetry={handleRetry}
