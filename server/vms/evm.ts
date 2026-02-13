@@ -1,4 +1,4 @@
-import { BN } from "luxfi";
+import BN from "bn.js";
 import type { Address } from "viem";
 import Web3 from "web3";
 import ERC20Interface from "./ERC20Interface.json";
