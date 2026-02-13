@@ -36,11 +36,12 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         precedence="font"
       />
 
-      {/* TODO: should link to home page ? */}
-      <picture className={css({ alignSelf: "flex-start" })}>
-        <source media="(min-width: 768px)" srcSet="/icon.svg" />
-        <img src="/icon-mobile.svg" alt="Maroo Faucet Logo" />
-      </picture>
+      <a href="/" className={css({ alignSelf: "flex-start" })}>
+        <picture>
+          <source media="(min-width: 768px)" srcSet="/icon.svg" />
+          <img src="/icon-mobile.svg" alt="Maroo Faucet Logo" />
+        </picture>
+      </a>
 
       <main>
         <Providers>{children}</Providers>

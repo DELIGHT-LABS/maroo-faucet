@@ -4,7 +4,7 @@ import { kycApi } from "~/shared/api/kyc-api";
 
 import {
   AlreadyVerifiedError,
-  isKycServerError,
+  extractKycServerError,
   NotCompletedError,
   VerificationError,
 } from "./error";
@@ -16,15 +16,17 @@ export const useCompleteVerify = () =>
         const { data } = await kycApi.api.kycControllerVerify();
         return data;
       } catch (e: unknown) {
-        if (isKycServerError(e)) {
+        const kycError = extractKycServerError(e);
+
+        if (kycError) {
           // TODO: better error handling
-          if (e.message.includes("already")) {
+          if (kycError.message.includes("already")) {
             throw new AlreadyVerifiedError(
               "Verification failed. You have already verified your identity with a different wallet.",
             );
           }
 
-          if (e.message.includes("not completed")) {
+          if (kycError.message.includes("not completed")) {
             throw new NotCompletedError(
               "Verification not completed. Please approve in KakaoTalk and and try again.",
             );
