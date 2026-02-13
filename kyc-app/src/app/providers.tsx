@@ -26,7 +26,7 @@ function RainbowKitWithAuth({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (session) {
-      authActions.login();
+      authActions.login(session.verified);
     }
   }, [session]);
 

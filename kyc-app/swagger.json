@@ -223,7 +223,7 @@
             "description": "Unauthorized"
           },
           "409": {
-            "description": "KYC already in progress or completed"
+            "description": "KYC already completed"
           },
           "502": {
             "description": "External service error"
@@ -275,7 +275,7 @@
   },
   "info": {
     "title": "KYC Attestation",
-    "version": "0.2.1-dev.2ef1841"
+    "version": "0.2.3-dev.348d385"
   },
   "components": {
     "schemas": {
@@ -381,13 +381,18 @@
             "example": 1,
             "description": "Chain ID"
           },
+          "verified": {
+            "type": "boolean",
+            "example": false,
+            "description": "KYC attestation verified"
+          },
           "expiresAt": {
             "type": "string",
             "example": "2026-02-04T12:00:00Z",
             "description": "Session expiration time"
           }
         },
-        "required": ["address", "chainId", "expiresAt"]
+        "required": ["address", "chainId", "verified", "expiresAt"]
       },
       "LogoutResponse": {
         "type": "object",
@@ -447,8 +452,9 @@
             "example": "2026-02-03T12:03:00Z"
           },
           "expiresAt": {
-            "type": "string",
-            "example": "2027-02-03T12:03:00Z"
+            "type": "object",
+            "example": "2027-02-03T12:03:00Z",
+            "nullable": true
           }
         },
         "required": [
