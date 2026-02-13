@@ -97,7 +97,7 @@ export const KycForm = ({ onSubmit, initialValues }: Props) => {
       />
 
       {errors.root?.message && (
-        <div className={css({ w: "full" })}>
+        <div className={css({ w: 0, minW: "full" })}>
           <ErrorCard message={errors.root.message} />
         </div>
       )}

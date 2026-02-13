@@ -88,7 +88,9 @@ export const LastVerification = ({
 
       {error && (
         <>
-          <ErrorCard message={error.message} />
+          <div className={css({ w: 0, minW: "full" })}>
+            <ErrorCard message={error.message} />
+          </div>
 
           <Button
             color="transparent"
