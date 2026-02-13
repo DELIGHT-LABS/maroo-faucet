@@ -4,7 +4,7 @@ interface KycServerError {
   statusCode: number;
 }
 
-export const isKycServerError = (error: unknown): error is KycServerError => {
+const isKycServerError = (error: unknown): error is KycServerError => {
   return (
     typeof error === "object" &&
     error !== null &&
@@ -13,6 +13,20 @@ export const isKycServerError = (error: unknown): error is KycServerError => {
     "statusCode" in error
   );
 };
+
+// auto generated httpClient wraps server error inside 'error' field
+export function extractKycServerError(e: unknown): KycServerError | null {
+  if (
+    typeof e === "object" &&
+    e !== null &&
+    "error" in e &&
+    isKycServerError(e.error)
+  ) {
+    return e.error;
+  }
+
+  return null;
+}
 
 export class VerificationError extends Error {
   constructor(message: string) {
