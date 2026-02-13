@@ -1,4 +1,5 @@
 import { BN } from "luxfi";
+import type { Address } from "viem";
 import Web3 from "web3";
 import ERC20Interface from "./ERC20Interface.json";
 import EIP7702 from "./eip7702";
@@ -7,7 +8,7 @@ import Log from "./Log";
 import { calculateBaseUnit } from "./utils";
 
 type BatchBufferItem = {
-  receiver: string;
+  receiver: Address;
   amount: BN | number;
   id?: string;
   key: string;
@@ -38,6 +39,7 @@ export default class EVM {
   log: Log;
   contracts: any;
   private eip7702: EIP7702;
+  private eip7702Ready: Promise<void>;
   private flushBatchInterval: ReturnType<typeof setInterval> | null = null;
   private readonly batchMaxSize: number;
 
@@ -85,7 +87,7 @@ export default class EVM {
 
     this.setupTransactionType();
     this.recalibrateNonceAndBalance();
-    this.eip7702
+    this.eip7702Ready = this.eip7702
       .ensureAuthorization()
       .catch((err: any) =>
         this.log.error(`EIP7702 ensureAuthorization: ${err?.message ?? err}`),
@@ -116,7 +118,7 @@ export default class EVM {
 
   // Function to issue transfer transaction. For ERC20 transfers, 'id' will be a string representing ERC20 token ID
   async sendToken(
-    receiver: string,
+    receiver: Address,
     id: string | undefined,
     cb: (param: SendTokenResponse) => void,
   ): Promise<void> {
@@ -305,6 +307,7 @@ export default class EVM {
   }
 
   async flushBatch(): Promise<void> {
+    await this.eip7702Ready;
     if (
       !this.eip7702.hasAuthorization() ||
       this.batchBuffer.length === 0 ||
@@ -332,7 +335,7 @@ export default class EVM {
         .transfer(item.receiver, item.amount)
         .encodeABI() as `0x${string}`;
       return {
-        target: contract.config.CONTRACTADDRESS as string,
+        target: contract.config.CONTRACTADDRESS as Address,
         value: BigInt(0),
         data,
       };

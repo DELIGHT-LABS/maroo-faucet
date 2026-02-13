@@ -1,12 +1,7 @@
-/**
- * EIP-7702 배치 전송: authorization 1개 상시 보유, sendBatchWithAuth로 type-4 tx 전송.
- * 배치 전송 후 다음 배치용 authorization을 다시 확보.
- */
-
 import {
+  type Address,
   createPublicClient,
   createWalletClient,
-  encodeFunctionData,
   type Hash,
   type Hex,
   http,
@@ -36,7 +31,7 @@ const accountAbi = [
 ] as const;
 
 export type BatchCall = {
-  target: string;
+  target: Address;
   value: bigint;
   data: Hex;
 };
@@ -52,9 +47,6 @@ export default class EIP7702 {
   private readonly walletClient: ReturnType<typeof createWalletClient>;
   private readonly account: ReturnType<typeof privateKeyToAccount>;
   private readonly contractAddress: `0x${string}`;
-  private nextAuthorization: Awaited<
-    ReturnType<ReturnType<typeof createWalletClient>["signAuthorization"]>
-  > | null = null;
   private nextNonce: number | null = null;
 
   constructor(config: ChainType, privateKey: string) {
@@ -82,60 +74,54 @@ export default class EIP7702 {
     this.contractAddress = config.accountImplementation as `0x${string}`;
   }
 
-  hasAuthorization(): boolean {
-    return this.nextAuthorization != null;
+  async ensureAuthorization(): Promise<void> {
+    if (this.nextNonce != null) return;
+    this.nextNonce = await this.publicClient.getTransactionCount({
+      address: this.account.address,
+      blockTag: "pending",
+    });
   }
 
-  async ensureAuthorization(): Promise<void> {
-    if (this.nextAuthorization != null) return;
-    const nonce =
-      this.nextNonce ??
-      (await this.publicClient.getTransactionCount({
-        address: this.account.address,
-        blockTag: "pending",
-      }));
-    this.nextNonce = nonce + 1;
-    this.nextAuthorization = await this.walletClient.signAuthorization({
-      account: this.account,
-      contractAddress: this.contractAddress,
-      executor: "self",
-      nonce,
-    });
+  hasAuthorization(): boolean {
+    return this.nextNonce != null;
   }
 
   async sendBatchWithAuth(calls: BatchCall[]): Promise<Hash> {
-    if (this.nextAuthorization == null) {
-      throw new Error(
-        "EIP7702: no authorization; call ensureAuthorization() first",
-      );
-    }
-    const auth = this.nextAuthorization;
-    this.nextAuthorization = null;
+    const txNonce = this.nextNonce!;
+    const authNonce = txNonce + 1;
+    // Reserve 2 nonces: one for the tx itself, one for the EIP-7702 authorization.
+    // When executor === "self", the tx nonce is consumed before the auth nonce is
+    // validated, so authNonce must be txNonce + 1.
+    this.nextNonce = txNonce + 2;
 
-    const data = encodeFunctionData({
-      abi: accountAbi,
-      functionName: "executeBatch",
-      args: [
-        calls.map((c) => ({
-          target: c.target as `0x${string}`,
-          value: c.value,
-          data: c.data,
-        })),
-      ],
+    const auth = await this.walletClient.signAuthorization({
+      account: this.account,
+      contractAddress: this.contractAddress,
+      executor: "self",
+      nonce: authNonce,
     });
 
     try {
-      const hash = await this.walletClient.sendTransaction({
+      // Simulate first to catch revert reasons without consuming the nonce on-chain.
+      const { request } = await this.publicClient.simulateContract({
         account: this.account,
         chain: this.chain,
+        abi: accountAbi,
+        functionName: "executeBatch",
+        args: [calls],
+        address: this.account.address,
         authorizationList: [auth],
-        data,
-        to: this.account.address,
+        nonce: txNonce,
       });
-      await this.ensureAuthorization();
+
+      const hash = await this.walletClient.writeContract(request);
       return hash;
     } catch (e) {
-      await this.ensureAuthorization();
+      // On failure, resync nonce from the network to avoid permanent desync.
+      this.nextNonce = await this.publicClient.getTransactionCount({
+        address: this.account.address,
+        blockTag: "pending",
+      });
       throw e;
     }
   }
