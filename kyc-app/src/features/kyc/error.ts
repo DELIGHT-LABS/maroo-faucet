@@ -27,3 +27,10 @@ export class AlreadyVerifiedError extends Error {
     this.name = "AlreadyVerifiedError";
   }
 }
+
+export class NotCompletedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotCompletedError";
+  }
+}
