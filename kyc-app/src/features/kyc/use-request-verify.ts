@@ -25,7 +25,7 @@ export function useRequestVerify({
     mutationFn: async (data: KycFormValues) => {
       try {
         await Promise.all([
-          await kycApi.api.kycControllerRequest({
+          kycApi.api.kycControllerRequest({
             name: data.name,
             phone: data.phone,
             birthdate: data.birthdate,
