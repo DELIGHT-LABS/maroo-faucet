@@ -114,7 +114,10 @@ export default class EIP7702 {
         nonce: txNonce,
       });
 
-      const hash = await this.walletClient.writeContract(request);
+      // Explicitly set gas because estimateGas underestimates for EIP-7702
+      // type-4 txs — it doesn't account for authorization list overhead.
+      const gas = BigInt(50_000 + calls.length * 40_000);
+      const hash = await this.walletClient.writeContract({ ...request, gas });
       return hash;
     } catch (e) {
       // On failure, resync nonce from the network to avoid permanent desync.
