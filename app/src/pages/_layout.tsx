@@ -22,6 +22,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       })}
     >
       <meta name="description" content={data.description} />
+      <meta property="og:title" content={data.title} />
+      <meta property="og:description" content={data.description} />
+      <meta property="og:image" content={data.ogImage} />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content={data.url} />
       <link rel="icon" type="image/png" href={data.icon} />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -57,8 +62,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 
 const getData = async () => {
   const data = {
-    description: "Request test tokens for Maroo testnets",
+    title: "Maroo Faucet",
+    description: "Request test tokens for Maroo",
     icon: "/favicon.svg",
+    ogImage: "/og-image.png",
+    url: "https://faucet.maroo.io",
   };
 
   return data;
