@@ -66,5 +66,5 @@ export function useRequestVerify() {
     setResendStep("idle");
   };
 
-  return { resendStep, send, resend, reset, error };
+  return { resendStep, send, resend, reset, error, formData };
 }

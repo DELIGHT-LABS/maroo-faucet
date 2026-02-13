@@ -10,9 +10,10 @@ import { type KycFormValues, kycFormSchema } from "./schema";
 
 interface Props {
   onSubmit: (data: KycFormValues) => void;
+  initialValues?: Partial<KycFormValues> | null;
 }
 
-export const KycForm = ({ onSubmit }: Props) => {
+export const KycForm = ({ onSubmit, initialValues }: Props) => {
   const {
     register,
     handleSubmit,
@@ -21,10 +22,10 @@ export const KycForm = ({ onSubmit }: Props) => {
     resolver: valibotResolver(kycFormSchema),
     mode: "onTouched",
     defaultValues: {
-      name: "",
-      phone: "",
-      birthdate: "",
-      agreement: false,
+      name: initialValues?.name ?? "",
+      phone: initialValues?.phone ?? "",
+      birthdate: initialValues?.birthdate ?? "",
+      agreement: initialValues?.agreement ?? false,
     },
   });
 
