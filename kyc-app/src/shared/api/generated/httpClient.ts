@@ -79,6 +79,11 @@ export interface SessionResponse {
    */
   chainId: number;
   /**
+   * KYC attestation verified
+   * @example false
+   */
+  verified: boolean;
+  /**
    * Session expiration time
    * @example "2026-02-04T12:00:00Z"
    */
@@ -129,7 +134,7 @@ export interface KycVerifyResponse {
   /** @example "2026-02-03T12:03:00Z" */
   issuedAt: string;
   /** @example "2027-02-03T12:03:00Z" */
-  expiresAt: string;
+  expiresAt: object | null;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -389,7 +394,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
 /**
  * @title KYC Attestation
- * @version 0.2.1-dev.2ef1841
+ * @version 0.2.3-dev.348d385
  */
 export class Api<
   SecurityDataType extends unknown,
