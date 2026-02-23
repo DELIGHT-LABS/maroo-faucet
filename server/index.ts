@@ -77,8 +77,8 @@ const erc20tokensWithEnv: ERC20Type[] = erc20tokens.map((token) => ({
     process.env[`${token.ID}_CONTRACTADDRESS`] || token.CONTRACTADDRESS,
 }));
 
-const app: any = express();
-const router: any = express.Router();
+const app = express();
+const router = express.Router();
 
 const corsAllowOrigins =
   process.env.NODE_ENV === "production" ||
@@ -121,7 +121,7 @@ new RateLimiter(
   },
 );
 
-const captcha: VerifyCaptcha = new VerifyCaptcha(
+const captcha = new VerifyCaptcha(
   app,
   process.env.CAPTCHA_SECRET!,
   process.env.V2_CAPTCHA_SECRET,
@@ -135,7 +135,7 @@ const getChainByID = (
   id: string,
 ): ChainType | undefined => {
   let reply: ChainType | undefined;
-  chains.forEach((chain: ChainType): void => {
+  chains.forEach((chain) => {
     if (chain.ID === id) {
       reply = chain;
     }
@@ -154,7 +154,7 @@ const populateConfig = (child: any, parent: any): any => {
 };
 
 // Setting up instance for EVM chains
-evmchainsWithEnv.forEach((chain: ChainType): void => {
+evmchainsWithEnv.forEach((chain) => {
   if (!chain.accountImplementation) {
     console.warn(
       `Skipping ${chain.NAME} (${chain.ID}): accountImplementation required (e.g. ${chain.ID}_ACCOUNT_IMPLEMENTATION)`,
@@ -163,10 +163,7 @@ evmchainsWithEnv.forEach((chain: ChainType): void => {
   }
   console.log(`Connecting to ${chain.NAME} (${chain.ID}) at ${chain.RPC}`);
 
-  const chainInstance: EVM = new EVM(
-    chain,
-    process.env[chain.ID] || process.env.PK,
-  );
+  const chainInstance = new EVM(chain, process.env[chain.ID] || process.env.PK);
 
   evms.set(chain.ID, {
     config: chain,
@@ -175,7 +172,7 @@ evmchainsWithEnv.forEach((chain: ChainType): void => {
 });
 
 // Adding ERC20 token contracts to their HOST evm instances
-erc20tokensWithEnv.forEach((token: ERC20Type, i: number): void => {
+erc20tokensWithEnv.forEach((token, i): void => {
   if (token.HOSTID) {
     token = populateConfig(token, getChainByID(evmchainsWithEnv, token.HOSTID));
   }
@@ -213,14 +210,14 @@ router.post(
 
 // GET request for fetching all the chain and token configurations
 router.get("/getChainConfigs", (_req: any, res: any) => {
-  const configs: any = [...evmchainsWithEnv, ...erc20tokensWithEnv];
+  const configs = [...evmchainsWithEnv, ...erc20tokensWithEnv];
   res.send({ configs });
 });
 
 // GET request for fetching faucet address for the specified chain
 router.get("/faucetAddress", (req: any, res: any) => {
   const chain: string = req.query?.chain;
-  const evm: EVMInstanceAndConfig = evms.get(chain)!;
+  const evm = evms.get(chain)!;
 
   res.send({
     address: evm?.instance.account.address,
@@ -232,9 +229,9 @@ router.get("/getBalance", (req: any, res: any) => {
   const chain: string = req.query?.chain;
   const erc20: string | undefined = req.query?.erc20;
 
-  const evm: EVMInstanceAndConfig = evms.get(chain)!;
+  const evm = evms.get(chain)!;
 
-  const balance: BN = evm?.instance.getBalance(erc20) ?? new BN(0);
+  const balance = evm?.instance.getBalance(erc20) ?? new BN(0);
 
   res.status(200).send({
     balance: balance?.toString(),

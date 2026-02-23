@@ -1,3 +1,4 @@
+import type { Express } from "express";
 import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
 import { searchIP } from "range_check";
 import type { RateLimiterConfig } from "../types";
@@ -5,20 +6,12 @@ import type { RateLimiterConfig } from "../types";
 export class RateLimiter {
   PATH: string;
 
-  constructor(app: any, configs: RateLimiterConfig[], keyGenerator?: any) {
+  constructor(app: Express, configs: RateLimiterConfig[], keyGenerator?: any) {
     this.PATH = configs[0].RATELIMIT.PATH || "/api/sendToken";
 
-    const rateLimiters: any = new Map();
-    configs.forEach((config: any) => {
-      const { RATELIMIT } = config;
-
-      const RL_CONFIG = {
-        MAX_LIMIT: RATELIMIT.MAX_LIMIT,
-        WINDOW_SIZE: RATELIMIT.WINDOW_SIZE,
-        SKIP_FAILED_REQUESTS: RATELIMIT.SKIP_FAILED_REQUESTS ?? true,
-      };
-
-      rateLimiters.set(config.ID, this.getLimiter(RL_CONFIG, keyGenerator));
+    const rateLimiters = new Map<string, RateLimitRequestHandler>();
+    configs.forEach((config) => {
+      rateLimiters.set(config.ID, this.getLimiter(config, keyGenerator));
     });
 
     if (configs[0]?.RATELIMIT?.REVERSE_PROXIES) {
@@ -29,20 +22,25 @@ export class RateLimiter {
       if (this.PATH === "/api/sendToken" && req.body.chain) {
         return rateLimiters.get(
           req.body.erc20 ? req.body.erc20 : req.body.chain,
-        )(req, res, next);
+          // TODO: remove ! assertion
+        )!(req, res, next);
       } else {
-        return rateLimiters.get(configs[0].ID)(req, res, next);
+        // TODO: remove ! assertion
+        return rateLimiters.get(configs[0].ID)!(req, res, next);
       }
     });
   }
 
-  getLimiter(config: any, keyGenerator?: any): RateLimitRequestHandler {
+  getLimiter(
+    config: RateLimiterConfig,
+    keyGenerator?: any,
+  ): RateLimitRequestHandler {
     const limiter = rateLimit({
       windowMs: config.WINDOW_SIZE * 60 * 1000,
       max: config.MAX_LIMIT,
       standardHeaders: true,
       legacyHeaders: false,
-      skipFailedRequests: config.SKIP_FAILED_REQUESTS,
+      skipFailedRequests: config.SKIP_FAILED_REQUESTS ?? true,
       message: {
         message: `Too many requests. Please try again after ${config.WINDOW_SIZE} minutes`,
       },
